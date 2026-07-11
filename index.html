@@ -56,10 +56,9 @@
 
   header{ text-align:center; padding:34px 20px 6px; z-index:2; }
   .eyebrow{
-    font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:13px;
-    letter-spacing:.42em; color:var(--sea); text-transform:uppercase;
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:14px;
+    letter-spacing:.18em; color:var(--sea);
   }
-  .eyebrow .jp{ letter-spacing:.3em; }
   h1{
     font-family:'Zen Maru Gothic',sans-serif; font-weight:900;
     font-size:clamp(30px,6vw,44px); color:var(--ink); margin-top:6px;
@@ -115,7 +114,12 @@
   /* ---- collection shelf ---- */
   .shelf{
     display:flex; flex-wrap:wrap; gap:7px; justify-content:center;
-    max-width:420px; margin:14px auto 130px; padding:0 18px; z-index:2; position:relative;
+    max-width:420px; margin:14px auto 0; padding:0 18px; z-index:2; position:relative;
+  }
+  .signature{
+    text-align:center; margin:18px auto 130px; z-index:2; position:relative;
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:500; font-size:12.5px;
+    letter-spacing:.14em; color:var(--sea); opacity:.55;
   }
   .shelf .slot{
     width:16px; height:16px; border-radius:50%;
@@ -133,12 +137,16 @@
   /* ================= REVEAL OVERLAY ================= */
   .overlay{
     position:fixed; inset:0; z-index:10; display:none;
-    align-items:center; justify-content:center; flex-direction:column;
     background:rgba(11,50,71,.55); backdrop-filter:blur(7px);
+    overflow-y:auto;
   }
   .overlay.show{ display:flex; }
+  .ov-inner{
+    margin:auto; display:flex; flex-direction:column; align-items:center;
+    padding:30px 16px 40px; width:100%;
+  }
 
-  .big-capsule{ position:relative; width:150px; height:150px; }
+  .big-capsule{ position:relative; width:150px; height:150px; flex:none; }
   .big-capsule .half{ position:absolute; left:0; width:150px; height:75px; transition:transform .5s cubic-bezier(.5,-.3,.4,1.4), opacity .5s; }
   .big-capsule .top{ top:0; border-radius:75px 75px 0 0;
     background:linear-gradient(180deg,#fff, #E8F8F6); border:4px solid rgba(255,255,255,.7); border-bottom:none; }
@@ -151,14 +159,16 @@
   .overlay.opened .big-capsule .top{ transform:translateY(-130px) rotate(-24deg); opacity:0; }
   .overlay.opened .big-capsule .bottom{ transform:translateY(130px) rotate(24deg); opacity:0; }
 
-  /* polaroid card */
+  /* polaroid card — sits in flow below the capsule spot, so the button below is never covered */
   .card{
-    position:absolute; background:var(--shell); padding:14px 14px 18px;
+    position:relative; background:var(--shell); padding:14px 14px 18px;
     border-radius:6px; box-shadow:0 24px 60px rgba(5,30,45,.5);
-    width:min(340px,86vw); transform:scale(.1) rotate(-6deg); opacity:0;
+    width:min(340px,86vw); margin-top:-110px;
+    transform:scale(.1) rotate(-6deg); transform-origin:50% 20%; opacity:0;
     transition:transform .55s cubic-bezier(.2,1.4,.4,1), opacity .4s;
+    pointer-events:none;
   }
-  .overlay.opened .card{ transform:scale(1) rotate(-2deg); opacity:1; transition-delay:.25s; }
+  .overlay.opened .card{ transform:scale(1) rotate(-2deg); opacity:1; transition-delay:.25s; pointer-events:auto; }
   .card img{ width:100%; display:block; border-radius:3px; background:var(--foam); aspect-ratio:4/3; object-fit:cover; }
   .card .cap{
     font-family:'Zen Maru Gothic',sans-serif; font-weight:700;
@@ -175,8 +185,9 @@
     font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:16px;
     color:var(--ink); background:var(--shell); padding:12px 34px; border-radius:999px;
     box-shadow:0 5px 0 rgba(180,170,150,.6);
+    position:relative; z-index:6; pointer-events:none;
   }
-  .overlay.opened .keep{ opacity:1; }
+  .overlay.opened .keep{ opacity:1; pointer-events:auto; }
   .keep:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(180,170,150,.6); }
 
   /* ---- complete banner ---- */
@@ -197,6 +208,151 @@
     *{ animation-duration:.01s !important; transition-duration:.01s !important; }
     .bubble, .petal, .walker, .floaty, .sparkle{ display:none !important; }
   }
+
+  /* ================= MINI GAMES ================= */
+  .games{ position:relative; z-index:2; width:min(560px,92vw); margin:34px auto 0; text-align:center; }
+  .games-title{ font-family:'Zen Maru Gothic',sans-serif; font-weight:900; font-size:22px; color:var(--ink); }
+  .games-sub{ font-weight:600; color:var(--sea); font-size:14px; margin:4px 0 16px; }
+  .game-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .game-card{
+    cursor:pointer; border:2px solid rgba(22,87,122,.2); border-radius:20px;
+    background:rgba(255,255,255,.78); padding:16px 12px 14px;
+    font-family:'Quicksand',sans-serif; color:var(--ink);
+    transition:transform .15s, box-shadow .15s, border-color .15s;
+    display:flex; flex-direction:column; gap:4px; align-items:center;
+  }
+  .game-card:hover{ transform:translateY(-3px); border-color:var(--aqua); box-shadow:0 10px 24px rgba(11,50,71,.15); }
+  .game-card:focus-visible{ outline:3px solid var(--sea); outline-offset:2px; }
+  .gc-emoji{ font-size:34px; }
+  .gc-name{ font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:16px; }
+  .gc-desc{ font-size:12.5px; font-weight:500; color:var(--sea); line-height:1.35; }
+
+  .wallet{
+    margin-top:20px; background:rgba(255,255,255,.7); border:2px dashed rgba(22,87,122,.3);
+    border-radius:20px; padding:14px 18px 16px; text-align:left;
+  }
+  .wallet h3{ font-family:'Zen Maru Gothic',sans-serif; font-size:16px; color:var(--ink); text-align:center; }
+  .wallet ul{ list-style:none; margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .wallet li{
+    font-weight:700; font-size:13px; color:var(--ink);
+    background:linear-gradient(135deg,#FFF6E6,#FFE9DC); border:1.5px solid var(--coral);
+    border-radius:999px; padding:6px 14px;
+  }
+  .wallet li.empty{ background:none; border:none; color:var(--sea); font-weight:500; }
+
+  /* ---- game overlay ---- */
+  .goverlay{
+    position:fixed; inset:0; z-index:20; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(11,50,71,.6); backdrop-filter:blur(6px); padding:16px;
+  }
+  .goverlay.show{ display:flex; }
+  .gpanel{
+    width:min(440px,94vw); background:var(--sand); border-radius:24px;
+    box-shadow:0 24px 60px rgba(5,30,45,.5); overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .ghead{
+    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    background:var(--deep); color:#fff;
+  }
+  .gtitle{ font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:16px; flex:1; text-align:left; }
+  .gstat{ font-weight:700; font-size:14px; font-variant-numeric:tabular-nums; }
+  .gclose{
+    cursor:pointer; border:none; background:rgba(255,255,255,.15); color:#fff;
+    width:32px; height:32px; border-radius:50%; font-size:15px; font-weight:700;
+  }
+  .gclose:focus-visible{ outline:2px solid #fff; }
+  .garea{
+    position:relative; height:min(420px,58vh); overflow:hidden; touch-action:manipulation;
+    background:linear-gradient(180deg,#DFF3F1, var(--foam));
+  }
+  .gmsg{ min-height:40px; padding:9px; font-weight:700; color:var(--sea); font-size:14px; text-align:center; }
+
+  .gstart{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    cursor:pointer; border:none; font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700; font-size:18px; color:#fff;
+    background:linear-gradient(180deg,var(--coral),var(--coral-d));
+    padding:14px 40px; border-radius:999px; box-shadow:0 6px 0 #B84E33;
+  }
+  .gstart:active{ transform:translate(-50%,-46%); box-shadow:0 2px 0 #B84E33; }
+
+  .fall-item{
+    position:absolute; top:-48px; cursor:pointer; user-select:none;
+    background:none; border:none; padding:4px; line-height:1; will-change:transform;
+  }
+  .pop-score{
+    position:absolute; font-weight:900; color:var(--coral-d); font-size:18px;
+    pointer-events:none; animation:popUp .6s ease-out forwards; z-index:5;
+  }
+  @keyframes popUp{ to{ transform:translateY(-36px); opacity:0; } }
+
+  .duck-grid{
+    position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr); gap:8px; padding:14px;
+  }
+  .duck-hole{
+    position:relative; border-radius:18px; background:rgba(91,200,206,.28);
+    border:2px solid rgba(22,87,122,.15); overflow:hidden;
+    display:flex; align-items:flex-end; justify-content:center;
+    cursor:pointer; padding:0; font-size:15px;
+  }
+  .duck-hole .wave{ position:absolute; bottom:4px; font-size:20px; opacity:.7; pointer-events:none; }
+  .duck-hole .duck{
+    font-size:min(9vw,44px); transform:translateY(110%); transition:transform .16s ease-out;
+    pointer-events:none; margin-bottom:6px;
+  }
+  .duck-hole.up .duck{ transform:translateY(0); }
+  .duck-hole.bonked .duck{ transform:translateY(0) rotate(24deg) scale(.85); }
+
+  .mem-grid{
+    position:absolute; inset:0; display:grid; grid-template-columns:repeat(4,1fr);
+    grid-template-rows:repeat(4,1fr); gap:8px; padding:14px;
+  }
+  .mem-card{
+    cursor:pointer; border:none; border-radius:14px; font-size:min(8vw,32px);
+    background:linear-gradient(180deg,var(--sea),var(--deep)); color:transparent;
+    transition:transform .18s, background .18s; position:relative;
+  }
+  .mem-card::after{
+    content:"〜"; position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:center; color:rgba(255,255,255,.5); font-size:20px;
+  }
+  .mem-card.flip{ background:#fff; color:inherit; transform:scale(1.04); }
+  .mem-card.flip::after{ content:""; }
+  .mem-card.matched{ background:var(--foam); opacity:.85; cursor:default; }
+  .mem-card:focus-visible{ outline:3px solid var(--coral); }
+
+  /* ---- prize coupon ---- */
+  .prize-layer{ z-index:30; }
+  .coupon{
+    width:min(360px,90vw); background:var(--shell); border-radius:20px; overflow:hidden;
+    box-shadow:0 24px 60px rgba(5,30,45,.55);
+    animation:couponIn .55s cubic-bezier(.2,1.4,.4,1);
+    text-align:center; position:relative;
+  }
+  @keyframes couponIn{ from{ transform:scale(.4) rotate(-6deg); opacity:0; } }
+  .coupon-top{
+    background:linear-gradient(90deg,var(--coral),#FFAD8E,var(--coral));
+    color:#fff; font-family:'Zen Maru Gothic',sans-serif; font-weight:900;
+    font-size:20px; padding:14px; letter-spacing:.06em;
+  }
+  .coupon-body{ padding:20px 22px; border-bottom:2px dashed rgba(22,87,122,.3); }
+  .coupon-label{ font-weight:600; font-size:13px; color:var(--sea); }
+  .coupon-prize{
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:900; font-size:26px;
+    color:var(--ink); margin:10px 0; line-height:1.3;
+  }
+  .coupon-note{ font-size:11.5px; font-weight:500; color:var(--sea); opacity:.8; }
+  .coupon-btn{
+    cursor:pointer; border:none; margin:16px auto 18px;
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:17px;
+    color:#fff; background:linear-gradient(180deg,var(--coral),var(--coral-d));
+    padding:12px 42px; border-radius:999px; box-shadow:0 5px 0 #B84E33;
+  }
+  .coupon-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 #B84E33; }
+  .coupon-btn:focus-visible, .gstart:focus-visible{ outline:3px solid var(--sea); outline-offset:2px; }
 
   /* ================= SAKURA PASSWORD GATE ================= */
   body.locked{ overflow:hidden; height:100vh; }
@@ -310,7 +466,7 @@
   <div class="sea-floor" aria-hidden="true"></div>
 
   <header>
-    <div class="eyebrow"><span class="jp">沖縄・海の記憶</span> · OKINAWA TIDE</div>
+    <div class="eyebrow">🎂 Meagan's 26th Birthday! 🌺</div>
     <h1>おもいで<span class="accent">ガチャ</span></h1>
     <div class="sub">Turn the crank. The sea gives back one memory at a time.</div>
   </header>
@@ -400,24 +556,81 @@
   <div class="counter"><span id="count">0</span> / <span id="total">30</span> memories found</div>
   <div class="shelf" id="shelf" aria-label="Collection progress"></div>
 
+  <!-- ============ MINI GAMES ============ -->
+  <section class="games">
+    <h2 class="games-title">ミニゲーム · Bonus Games</h2>
+    <p class="games-sub">Win a game, win a prize 🎟️</p>
+    <div class="game-grid">
+      <button class="game-card" data-game="shells">
+        <span class="gc-emoji">🐚</span>
+        <span class="gc-name">Shell Catch</span>
+        <span class="gc-desc">Tap 10 falling shells before time runs out</span>
+      </button>
+      <button class="game-card" data-game="ducks">
+        <span class="gc-emoji">🦆</span>
+        <span class="gc-name">Duck Splash</span>
+        <span class="gc-desc">Bop 10 ducks as they pop out of the waves</span>
+      </button>
+      <button class="game-card" data-game="memory">
+        <span class="gc-emoji">🐠</span>
+        <span class="gc-name">Memory Match</span>
+        <span class="gc-desc">Find all 8 pairs hiding under the sea</span>
+      </button>
+    </div>
+    <div class="wallet">
+      <h3>🎟️ Prize wallet</h3>
+      <ul id="walletList"><li class="empty">No prizes yet… go win some!</li></ul>
+    </div>
+  </section>
+
+  <div class="signature">With love, from Matthew · September 2026</div>
+
   <div class="complete" id="complete">
     <h2>コンプリート！ Collection complete 🌺</h2>
     <p>Every memory has washed ashore.</p>
     <button id="restart">もういちど · Start over</button>
   </div>
 
+  <!-- game overlay -->
+  <div class="goverlay" id="gameOverlay" role="dialog" aria-modal="true" aria-label="Mini game">
+    <div class="gpanel">
+      <div class="ghead">
+        <span class="gtitle" id="gTitle">Game</span>
+        <span class="gstat" id="gStat"></span>
+        <button class="gclose" id="gClose" aria-label="Close game">✕</button>
+      </div>
+      <div class="garea" id="gArea"></div>
+      <div class="gmsg" id="gMsg"></div>
+    </div>
+  </div>
+
+  <!-- prize coupon popup -->
+  <div class="goverlay prize-layer" id="prizeOverlay" role="dialog" aria-modal="true" aria-label="Prize won">
+    <div class="coupon" id="coupon">
+      <div class="coupon-top">🎉 PRIZE GET! 🎉</div>
+      <div class="coupon-body">
+        <div class="coupon-label">This coupon entitles Meagan to:</div>
+        <div class="coupon-prize" id="couponPrize"></div>
+        <div class="coupon-note">redeemable any time · no expiry · 📸 it's saved in your wallet too</div>
+      </div>
+      <button class="coupon-btn" id="couponBtn">Claim 💝</button>
+    </div>
+  </div>
+
   <!-- reveal overlay -->
   <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Memory revealed">
-    <div class="big-capsule" id="bigCapsule">
-      <div class="half top"><div class="shine"></div></div>
-      <div class="half bottom"></div>
+    <div class="ov-inner">
+      <div class="big-capsule" id="bigCapsule">
+        <div class="half top"><div class="shine"></div></div>
+        <div class="half bottom"></div>
+      </div>
       <div class="card" id="card">
         <div class="num" id="cardNum"></div>
         <img id="cardImg" src="" alt="Memory photo">
         <div class="cap" id="cardCap"></div>
       </div>
+      <button class="keep" id="keepBtn">しまう · Keep it</button>
     </div>
-    <button class="keep" id="keepBtn">しまう · Keep it</button>
   </div>
 
 <script>
@@ -650,6 +863,255 @@
   });
 
   sync();
+})();
+</script>
+<script>
+/* ================= MINI GAMES & PRIZES ================= */
+(function(){
+  const PRIZES = [
+    "1 picnic date 🧺",
+    "1 kiss 💋",
+    "1 kiss + hug 💋🤗",
+    "Uni date 🎓",
+    "Sushi date 🍣",
+    "Danbo date 🍲",
+    "1 work pickup :) 🚗",
+    "1 roadtrip? 🛣️",
+    "1 massage 💆‍♀️",
+    "1 movie night — your pick 🎬",
+    "Breakfast in bed 🥞",
+    "Aquarium date 🐠",
+    "1 dessert run — any time, no questions asked 🍦",
+    "Karaoke night 🎤",
+    "1 nap date 😴",
+    "Sunset beach walk 🌅",
+    "1 \"I do the dishes\" pass 🧽",
+    "You win the next argument. Automatically. 🏆",
+    "Matcha café date 🍵"
+  ];
+  const PKEY = "gachaPrizesWon";
+  const $ = id => document.getElementById(id);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let won = [];
+  try { won = JSON.parse(localStorage.getItem(PKEY)) || []; } catch(e){}
+  function saveWon(){ try{ localStorage.setItem(PKEY, JSON.stringify(won)); }catch(e){} }
+
+  const walletList = $("walletList");
+  function renderWallet(){
+    walletList.innerHTML = "";
+    if (!won.length){
+      walletList.innerHTML = '<li class="empty">No prizes yet… go win some!</li>';
+      return;
+    }
+    won.forEach(p=>{
+      const li = document.createElement("li");
+      li.textContent = p;
+      walletList.appendChild(li);
+    });
+  }
+  renderWallet();
+
+  /* ---- prize popup ---- */
+  const prizeOv = $("prizeOverlay");
+  function awardPrize(){
+    const remaining = PRIZES.filter(p => !won.includes(p));
+    const prizeEl = $("couponPrize");
+    if (remaining.length){
+      const p = remaining[Math.floor(Math.random()*remaining.length)];
+      won.push(p); saveWon(); renderWallet();
+      prizeEl.textContent = p;
+      document.querySelector(".coupon-top").textContent = "🎉 PRIZE GET! 🎉";
+      document.querySelector(".coupon-label").textContent = "This coupon entitles Meagan to:";
+    } else {
+      document.querySelector(".coupon-top").textContent = "🌸 CHAMPION 🌸";
+      document.querySelector(".coupon-label").textContent = "You've already won…";
+      prizeEl.textContent = "every single prize! (and Matthew's whole heart)";
+    }
+    prizeOv.classList.add("show");
+  }
+  $("couponBtn").addEventListener("click", ()=> prizeOv.classList.remove("show"));
+
+  /* ---- game overlay plumbing ---- */
+  const gOv = $("gameOverlay"), gArea = $("gArea"),
+        gTitle = $("gTitle"), gStat = $("gStat"), gMsg = $("gMsg");
+  let timers = [];
+  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+  function every(fn, ms){ timers.push(setInterval(fn, ms)); }
+  function clearTimers(){ timers.forEach(t=>{ clearTimeout(t); clearInterval(t); }); timers = []; }
+  function closeGame(){
+    clearTimers();
+    gOv.classList.remove("show");
+    gArea.innerHTML = ""; gMsg.textContent = ""; gStat.textContent = "";
+  }
+  $("gClose").addEventListener("click", closeGame);
+
+  function showStart(label, onStart){
+    gArea.innerHTML = "";
+    const b = document.createElement("button");
+    b.className = "gstart"; b.textContent = label;
+    b.addEventListener("click", ()=>{ b.remove(); onStart(); });
+    gArea.appendChild(b);
+    b.focus();
+  }
+  function endGame(winMsg, loseMsg, didWin, retry){
+    clearTimers();
+    gMsg.textContent = didWin ? winMsg : loseMsg;
+    if (didWin){
+      later(()=>{ closeGame(); awardPrize(); }, reduce ? 100 : 900);
+    } else {
+      showStart("もういちど · Retry", retry);
+    }
+  }
+  function popScore(x, y, text){
+    const s = document.createElement("div");
+    s.className = "pop-score"; s.textContent = text;
+    s.style.left = x + "px"; s.style.top = y + "px";
+    gArea.appendChild(s);
+    later(()=> s.remove(), 650);
+  }
+
+  /* ============ GAME 1: SHELL CATCH ============ */
+  function shellGame(){
+    gTitle.textContent = "🐚 Shell Catch";
+    gMsg.textContent = "Tap the shells 🐚 — other sea friends don't count!";
+    showStart("スタート · Start", runShells);
+  }
+  function runShells(){
+    let score = 0, time = 25;
+    const GOAL = 10;
+    gStat.textContent = `🐚 0/${GOAL} · ⏱ ${time}s`;
+    const decoys = ["🐟","🫧","⭐","🐡","🦑"];
+    every(()=>{
+      time--;
+      gStat.textContent = `🐚 ${score}/${GOAL} · ⏱ ${time}s`;
+      if (time <= 0) endGame("", "Time's up! So close 🌊", false, runShells);
+    }, 1000);
+    every(()=>{
+      const isShell = Math.random() < 0.55;
+      const el = document.createElement("button");
+      el.className = "fall-item";
+      el.textContent = isShell ? "🐚" : decoys[Math.floor(Math.random()*decoys.length)];
+      el.style.fontSize = (30 + Math.random()*16) + "px";
+      el.style.left = (5 + Math.random()*82) + "%";
+      gArea.appendChild(el);
+      const fallMs = reduce ? 200 : 2800 + Math.random()*2200;
+      const anim = el.animate(
+        [{ transform:"translateY(0)" }, { transform:`translateY(${gArea.offsetHeight + 90}px)` }],
+        { duration: fallMs, easing:"linear" });
+      anim.onfinish = ()=> el.remove();
+      el.addEventListener("pointerdown", (e)=>{
+        const r = gArea.getBoundingClientRect();
+        if (isShell){
+          score++;
+          popScore(e.clientX - r.left, e.clientY - r.top, "+1 🐚");
+          el.remove();
+          gStat.textContent = `🐚 ${score}/${GOAL} · ⏱ ${time}s`;
+          if (score >= GOAL) endGame("やったー! You caught them all! 🎉", "", true, runShells);
+        } else {
+          popScore(e.clientX - r.left, e.clientY - r.top, "not me!");
+        }
+      });
+    }, 520);
+  }
+
+  /* ============ GAME 2: DUCK SPLASH ============ */
+  function duckGame(){
+    gTitle.textContent = "🦆 Duck Splash";
+    gMsg.textContent = "Bop the ducks when they pop up! (gently)";
+    showStart("スタート · Start", runDucks);
+  }
+  function runDucks(){
+    let score = 0, time = 22;
+    const GOAL = 10;
+    gStat.textContent = `🦆 0/${GOAL} · ⏱ ${time}s`;
+    const grid = document.createElement("div");
+    grid.className = "duck-grid";
+    const holes = [];
+    for (let i=0;i<9;i++){
+      const h = document.createElement("button");
+      h.className = "duck-hole";
+      h.innerHTML = '<span class="duck">🦆</span><span class="wave">🌊🌊</span>';
+      grid.appendChild(h); holes.push(h);
+      h.addEventListener("pointerdown", ()=>{
+        if (!h.classList.contains("up") || h.classList.contains("bonked")) return;
+        h.classList.add("bonked");
+        score++;
+        gStat.textContent = `🦆 ${score}/${GOAL} · ⏱ ${time}s`;
+        const r = h.getBoundingClientRect(), a = gArea.getBoundingClientRect();
+        popScore(r.left - a.left + r.width/2, r.top - a.top + 10, "bop!");
+        later(()=> h.classList.remove("up","bonked"), 220);
+        if (score >= GOAL) endGame("Quack-tastic!! 🎉🦆", "", true, runDucks);
+      });
+    }
+    gArea.appendChild(grid);
+    every(()=>{
+      time--;
+      gStat.textContent = `🦆 ${score}/${GOAL} · ⏱ ${time}s`;
+      if (time <= 0) endGame("", "The ducks escaped! 🦆💨 Try again!", false, runDucks);
+    }, 1000);
+    every(()=>{
+      const free = holes.filter(h => !h.classList.contains("up"));
+      if (!free.length) return;
+      const h = free[Math.floor(Math.random()*free.length)];
+      if (Math.random() < 0.18 && h.querySelector(".duck")) h.querySelector(".duck").textContent = "🪿";
+      else h.querySelector(".duck").textContent = "🦆";
+      h.classList.add("up");
+      later(()=> h.classList.remove("up","bonked"), 750 + Math.random()*350);
+    }, 480);
+  }
+
+  /* ============ GAME 3: MEMORY MATCH ============ */
+  function memoryGame(){
+    gTitle.textContent = "🐠 Memory Match";
+    gMsg.textContent = "Find all 8 pairs 🌊";
+    showStart("スタート · Start", runMemory);
+  }
+  function runMemory(){
+    const emo = ["🐚","🌺","🐠","🐢","🦀","🍉","⛱️","🌊"];
+    const deck = [...emo, ...emo].sort(()=> Math.random() - .5);
+    let flipped = [], matched = 0, lock = false, moves = 0;
+    gStat.textContent = "0/8 pairs";
+    const grid = document.createElement("div");
+    grid.className = "mem-grid";
+    deck.forEach(e=>{
+      const c = document.createElement("button");
+      c.className = "mem-card"; c.textContent = e;
+      c.addEventListener("click", ()=>{
+        if (lock || c.classList.contains("flip") || c.classList.contains("matched")) return;
+        c.classList.add("flip");
+        flipped.push(c);
+        if (flipped.length === 2){
+          moves++; lock = true;
+          const [a,b] = flipped;
+          if (a.textContent === b.textContent){
+            later(()=>{
+              a.classList.add("matched"); b.classList.add("matched");
+              matched++; flipped = []; lock = false;
+              gStat.textContent = `${matched}/8 pairs`;
+              if (matched === 8) endGame(`Perfect memory! 🎉 (${moves} moves)`, "", true, runMemory);
+            }, 350);
+          } else {
+            later(()=>{
+              a.classList.remove("flip"); b.classList.remove("flip");
+              flipped = []; lock = false;
+            }, 800);
+          }
+        }
+      });
+      grid.appendChild(c);
+    });
+    gArea.appendChild(grid);
+  }
+
+  /* ---- launch buttons ---- */
+  const launchers = { shells: shellGame, ducks: duckGame, memory: memoryGame };
+  document.querySelectorAll(".game-card").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      gOv.classList.add("show");
+      launchers[btn.dataset.game]();
+    });
+  });
 })();
 </script>
 </body>
