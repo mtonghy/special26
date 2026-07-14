@@ -81,6 +81,10 @@
     top:52%; opacity:0; z-index:3; pointer-events:none;
   }
   #dropCapsule.dropping{ animation:drop .9s cubic-bezier(.34,1.4,.64,1) forwards; }
+  #dropCapsule.dropping.ultra{
+    animation:drop .9s cubic-bezier(.34,1.4,.64,1) forwards, hueSpin 1.4s linear infinite;
+  }
+  @keyframes hueSpin{ to{ filter:hue-rotate(360deg); } }
   @keyframes drop{
     0%{ opacity:0; transform:translateY(0) rotate(0); }
     12%{ opacity:1; }
@@ -133,6 +137,31 @@
   }
   .shelf .slot.coral.got{ background:linear-gradient(135deg,#fff 45%, var(--coral) 46%); }
   .shelf .slot.sun.got{ background:linear-gradient(135deg,#fff 45%, var(--sun) 46%); }
+  .shelf .slot.got.rareGot{
+    background:linear-gradient(135deg,#fff 40%, #F6C445 41%);
+    border-color:#D89A1E; box-shadow:0 0 8px rgba(246,196,69,.8);
+  }
+  .shelf .slot.got.ultraGot{
+    background:linear-gradient(135deg,#5BC8CE, #C9A6F5 55%, #F6C445);
+    border-color:#9A7BD8; box-shadow:0 0 10px rgba(201,166,245,.95);
+  }
+
+  /* ---- rare capsule reveal ---- */
+  .rare-tag{
+    display:none; font-family:'Zen Maru Gothic',sans-serif; font-weight:900;
+    font-size:21px; color:#fff; letter-spacing:.05em; text-align:center;
+    text-shadow:0 2px 12px rgba(0,0,0,.4); margin-bottom:12px;
+    animation:tagPulse 1s ease-in-out infinite;
+  }
+  @keyframes tagPulse{ 50%{ transform:scale(1.12); } }
+  .overlay.rare .rare-tag, .overlay.ultra .rare-tag{ display:block; }
+  .overlay.rare .big-capsule .bottom{ background:linear-gradient(180deg,#F6C445,#D89A1E); }
+  .overlay.rare .big-capsule .top{ background:linear-gradient(180deg,#fff,#FBEFD2); }
+  .overlay.ultra .big-capsule .bottom{ background:linear-gradient(135deg,#5BC8CE,#C9A6F5,#F6C445); }
+  .overlay.rare .card .num, .overlay.ultra .card .num{
+    background:linear-gradient(135deg,#F6C445,#D89A1E);
+    box-shadow:0 4px 10px rgba(216,154,30,.55);
+  }
 
   /* ================= REVEAL OVERLAY ================= */
   .overlay{
@@ -207,6 +236,64 @@
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.01s !important; transition-duration:.01s !important; }
     .bubble, .petal, .walker, .floaty, .sparkle{ display:none !important; }
+  }
+
+  /* ================= TABS ================= */
+  .tabs{
+    display:flex; gap:6px; margin-top:20px; z-index:2; position:relative;
+    background:rgba(255,255,255,.65); padding:6px; border-radius:999px;
+    border:1.5px solid rgba(22,87,122,.18); backdrop-filter:blur(4px);
+  }
+  .tabs button{
+    cursor:pointer; border:none; background:none;
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:14px;
+    color:var(--sea); padding:9px 22px; border-radius:999px;
+    transition:background .2s, color .2s, box-shadow .2s;
+  }
+  .tabs button.on{
+    color:#fff; background:linear-gradient(180deg,var(--coral),var(--coral-d));
+    box-shadow:0 4px 10px rgba(224,106,75,.35);
+  }
+  .tabs button:focus-visible{ outline:3px solid var(--sea); outline-offset:2px; }
+  .tab-view{ display:none; width:100%; flex-direction:column; align-items:center; }
+  .tab-view.on{ display:flex; }
+
+  /* ================= ITINERARY ================= */
+  .itin{ width:min(500px,92vw); margin:26px auto 0; position:relative; z-index:2; padding-bottom:16px; }
+  .itin-title{
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:900; font-size:24px;
+    color:var(--ink); text-align:center;
+  }
+  .itin-sub{ text-align:center; font-weight:600; color:var(--sea); font-size:14px; margin-top:5px; }
+  .timeline{ margin-top:26px; }
+  .tl-item{ display:flex; gap:12px; align-items:flex-start; position:relative; padding-bottom:24px; }
+  .tl-item::before{
+    content:""; position:absolute; left:106px; top:46px; bottom:-2px; width:3px;
+    border-radius:2px; background:rgba(22,87,122,.22);
+  }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-item:last-child::before{ display:none; }
+  .tl-time{
+    width:74px; flex:none; text-align:right; font-weight:700; color:var(--sea);
+    font-size:15px; padding-top:9px; font-variant-numeric:tabular-nums;
+  }
+  .tl-time span{ display:block; font-size:10.5px; opacity:.75; letter-spacing:.1em; }
+  .tl-dot{
+    flex:none; width:44px; height:44px; border-radius:50%; background:#fff;
+    border:2.5px solid var(--aqua); display:flex; align-items:center; justify-content:center;
+    font-size:20px; box-shadow:0 4px 10px rgba(11,50,71,.15); position:relative; z-index:1;
+  }
+  .tl-item:nth-child(3n+2) .tl-dot{ border-color:var(--coral); }
+  .tl-item:nth-child(3n) .tl-dot{ border-color:var(--sun); }
+  .tl-card{
+    flex:1; background:rgba(255,255,255,.85); border:2px solid rgba(22,87,122,.15);
+    border-radius:18px; padding:12px 16px; box-shadow:0 6px 16px rgba(11,50,71,.08);
+  }
+  .tl-title{ font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:16px; color:var(--ink); }
+  .tl-note{ font-size:12.5px; font-weight:500; color:var(--sea); margin-top:3px; line-height:1.45; }
+  .itin-foot{
+    text-align:center; margin-top:8px; font-size:12.5px; font-weight:600;
+    color:var(--sea); opacity:.85;
   }
 
   /* ================= MINI GAMES ================= */
@@ -514,8 +601,15 @@
   <header>
     <div class="eyebrow">🎂 Meagan's 26th Birthday! 🌺</div>
     <h1>おもいで<span class="accent">ガチャ</span></h1>
-    <div class="sub">Turn the crank. The sea gives back one memory at a time.</div>
+    <div class="sub">Turn the crank. The sea gives back memories — and hides a little treasure ✨</div>
   </header>
+
+  <nav class="tabs" aria-label="Sections">
+    <button class="on" data-tab="tabGacha">🎰 ガチャ · Gacha</button>
+    <button data-tab="tabItin">🗓️ しおり · Date Plan</button>
+  </nav>
+
+  <div class="tab-view on" id="tabGacha">
 
   <div class="stage">
     <!-- Gacha machine -->
@@ -591,7 +685,14 @@
 
     <!-- dropping capsule -->
     <svg id="dropCapsule" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="32" cy="32" r="30" fill="#5BC8CE" stroke="#fff" stroke-width="3"/>
+      <defs>
+        <linearGradient id="ultraG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#5BC8CE"/>
+          <stop offset=".5" stop-color="#C9A6F5"/>
+          <stop offset="1" stop-color="#F6C445"/>
+        </linearGradient>
+      </defs>
+      <circle class="cap-body" cx="32" cy="32" r="30" fill="#5BC8CE" stroke="#fff" stroke-width="3"/>
       <path d="M2 32 a30 30 0 0 1 60 0 z" fill="#fff" opacity=".9"/>
       <ellipse cx="22" cy="18" rx="8" ry="5" fill="#fff"/>
     </svg>
@@ -630,13 +731,77 @@
     </div>
   </section>
 
-  <div class="signature">With love, from Matthew · September 2026</div>
+
+
 
   <div class="complete" id="complete">
     <h2>コンプリート！ Collection complete 🌺</h2>
     <p>Every memory has washed ashore.</p>
     <button id="restart">もういちど · Start over</button>
   </div>
+  </div><!-- /tabGacha -->
+
+  <!-- ============ DATE PLAN ITINERARY ============ -->
+  <div class="tab-view" id="tabItin">
+    <section class="itin">
+      <h2 class="itin-title">とくべつな一日 · The Big Day</h2>
+      <p class="itin-sub">Saturday, September 5 🌺 (times may bend to birthday whims)</p>
+      <div class="timeline">
+        <!-- ✏️ EDIT THE STOPS BELOW — copy a tl-item block to add more -->
+        <div class="tl-item">
+          <div class="tl-time">9:00<span>AM</span></div>
+          <div class="tl-dot">🚗</div>
+          <div class="tl-card">
+            <div class="tl-title">Pickup Meagan</div>
+            <div class="tl-note">Birthday chauffeur service, door to door. Coffee in the cupholder.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">9:45<span>AM</span></div>
+          <div class="tl-dot">🏺</div>
+          <div class="tl-card">
+            <div class="tl-title">Pottery session</div>
+            <div class="tl-note">Morning slot — we make slightly questionable bowls, then make it to ramen on time.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">11:00<span>AM</span></div>
+          <div class="tl-dot">🍜</div>
+          <div class="tl-card">
+            <div class="tl-title">Lunch at Ramen DANBO</div>
+            <div class="tl-note">Doors open at 11 — first bowls of the day, zero lineup. Then Highway 1 east.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">1:30<span>PM</span></div>
+          <div class="tl-dot">🍏</div>
+          <div class="tl-card">
+            <div class="tl-title">Taves Estate Cidery <span style="font-weight:500; font-size:12px;">(optional)</span></div>
+            <div class="tl-note">Cider tasting flight + feeding the goats. Two minutes from the orchard.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">3:00<span>PM</span></div>
+          <div class="tl-dot">🍎</div>
+          <div class="tl-card">
+            <div class="tl-title">U-pick apples at Willow View Farms</div>
+            <div class="tl-note">Abbotsford. Orchard wandering, photos, apple cider slushie, loaded tote bag.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">7:00<span>PM</span></div>
+          <div class="tl-dot">🦀</div>
+          <div class="tl-card">
+            <div class="tl-title">Dinner at Ministère of Seafood</div>
+            <div class="tl-note">Abbotsford — 5 minutes from the orchard. Seafood boil, bibs on, no mercy.</div>
+          </div>
+        </div>
+      </div>
+      <div class="itin-foot">🎟️ Wallet prizes are valid all day. Obviously.</div>
+    </section>
+  </div><!-- /tabItin -->
+
+  <div class="signature">With love, from Matthew · September 2026</div>
 
   <!-- game overlay -->
   <div class="goverlay" id="gameOverlay" role="dialog" aria-modal="true" aria-label="Mini game">
@@ -686,6 +851,7 @@
   <!-- reveal overlay -->
   <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Memory revealed">
     <div class="ov-inner">
+      <div class="rare-tag" id="rareTag"></div>
       <div class="big-capsule" id="bigCapsule">
         <div class="half top"><div class="shine"></div></div>
         <div class="half bottom"></div>
@@ -841,6 +1007,28 @@
   try { idx = Math.min(parseInt(localStorage.getItem(KEY)) || 0, total); } catch(e){}
 
   const $ = id => document.getElementById(id);
+
+  /* ---- lucky capsule schedule: 8 gold + 2 ultra hidden among the 30 ---- */
+  const LKEY = "gachaLuck";
+  let luck = [];
+  function genLuck(){
+    luck = Array(total).fill(0);
+    const pos = [...Array(total).keys()].sort(()=> Math.random() - .5);
+    pos.slice(0, 2).forEach(i=> luck[i] = 2);   // ultra rare
+    pos.slice(2, 10).forEach(i=> luck[i] = 1);  // rare
+    // guarantee a sparkle in the first three pulls
+    if (!luck.slice(0, 3).some(Boolean)){
+      const j = luck.findIndex(Boolean);
+      luck[1] = luck[j]; luck[j] = 0;
+    }
+    try{ localStorage.setItem(LKEY, JSON.stringify(luck)); }catch(e){}
+  }
+  try{
+    const s = JSON.parse(localStorage.getItem(LKEY));
+    if (Array.isArray(s) && s.length === total) luck = s; else genLuck();
+  }catch(e){ genLuck(); }
+  let pendingTier = 0;
+
   const shelf = $("shelf");
   const capsuleColors = ["", "coral", "sun"];
   for (let i = 0; i < total; i++){
@@ -852,7 +1040,11 @@
 
   function sync(){
     $("count").textContent = idx;
-    [...shelf.children].forEach((s,i)=> s.classList.toggle("got", i < idx));
+    [...shelf.children].forEach((s,i)=>{
+      s.classList.toggle("got", i < idx);
+      s.classList.toggle("rareGot",  i < idx && luck[i] === 1);
+      s.classList.toggle("ultraGot", i < idx && luck[i] === 2);
+    });
     const done = idx >= total;
     $("turnBtn").style.display = done ? "none" : "block";
     $("hint").style.display = done ? "none" : "block";
@@ -884,6 +1076,14 @@
     machine.classList.add("shake");
     setTimeout(()=> machine.classList.remove("shake"), 550);
 
+    // is this a lucky capsule?
+    pendingTier = luck[idx] || 0;
+    const dropBody = drop.querySelector(".cap-body");
+    drop.classList.remove("ultra");
+    if (pendingTier === 2){ dropBody.setAttribute("fill", "url(#ultraG)"); drop.classList.add("ultra"); }
+    else if (pendingTier === 1){ dropBody.setAttribute("fill", "#F6C445"); }
+    else { dropBody.setAttribute("fill", "#5BC8CE"); }
+
     // preload photo
     const item = PHOTOS[idx];
     const img = new Image();
@@ -905,6 +1105,10 @@
     $("cardCap").textContent = item.caption;
     $("cardNum").textContent = "No." + (idx+1);
     const ov = $("overlay");
+    ov.classList.toggle("rare",  pendingTier === 1);
+    ov.classList.toggle("ultra", pendingTier === 2);
+    $("rareTag").textContent = pendingTier === 2 ? "🌈 ULTRA RARE!! 🌈"
+                             : pendingTier === 1 ? "✨ GOLD CAPSULE! ✨" : "";
     ov.classList.add("show","opening");
     ov.classList.remove("opened");
     setTimeout(()=>{
@@ -914,17 +1118,19 @@
   }
 
   $("keepBtn").addEventListener("click", ()=>{
-    $("overlay").classList.remove("show","opened","opening");
+    $("overlay").classList.remove("show","opened","opening","rare","ultra");
+    const tier = pendingTier; pendingTier = 0;
     idx++;
     save(); sync();
     busy = false;
     $("turnBtn").disabled = false;
     $("hint").textContent = idx >= total ? "" :
       ["つぎはなにかな？ · What's next?","もういっかい？ · One more?","波がよんでいる · The tide is calling"][idx % 3];
+    if (tier && window.capsulePrize) setTimeout(()=> window.capsulePrize(tier), 350);
   });
 
   $("restart").addEventListener("click", ()=>{
-    idx = 0; save(); sync();
+    idx = 0; save(); genLuck(); sync();
     $("hint").textContent = "コインをいれて · Ready when you are";
   });
 
@@ -1148,23 +1354,48 @@
 
   /* ---- prize popup ---- */
   const prizeOv = $("prizeOverlay");
-  function awardPrize(){
-    const remaining = PRIZES.filter(p => !won.includes(p));
-    const prizeEl = $("couponPrize");
-    if (remaining.length){
-      const p = remaining[Math.floor(Math.random()*remaining.length)];
-      won.push(p); saveWon(); renderWallet();
-      prizeEl.textContent = p;
-      if (p.includes("DANBO")) danboBurst();
-      document.querySelector(".coupon-top").textContent = "🎉 PRIZE GET! 🎉";
-      document.querySelector(".coupon-label").textContent = "This coupon entitles Meagan to:";
-    } else {
-      document.querySelector(".coupon-top").textContent = "💎 CHAMPION 💎";
-      document.querySelector(".coupon-label").textContent = "You've already won…";
-      prizeEl.textContent = "every single prize! (and Matthew's whole heart)";
-    }
+  const JACKPOTS = [
+    "JACKPOT: a full surprise date day — I plan everything 💘",
+    "JACKPOT: weekend roadtrip, you pick the destination 🛣️✨",
+    "JACKPOT: unlimited Ramen DANBO day 🍜♾️",
+    "JACKPOT: spa + treat-yourself day, on me 💆‍♀️💅"
+  ];
+  const couponTop   = document.querySelector(".coupon-top");
+  const couponLabel = document.querySelector(".coupon-label");
+  function showCoupon(top, label, prize){
+    couponTop.textContent = top;
+    couponLabel.textContent = label;
+    $("couponPrize").textContent = prize;
     prizeOv.classList.add("show");
   }
+  function pickPrize(pool){
+    const remaining = pool.filter(p => !won.includes(p));
+    if (!remaining.length) return null;
+    const p = remaining[Math.floor(Math.random()*remaining.length)];
+    won.push(p); saveWon(); renderWallet();
+    if (p.includes("DANBO")) danboBurst();
+    return p;
+  }
+  function champion(){
+    showCoupon("💎 CHAMPION 💎", "You've already won…",
+      "every single prize! (and Matthew's whole heart)");
+  }
+  function awardPrize(){
+    const p = pickPrize(PRIZES);
+    if (p) showCoupon("🎉 PRIZE GET! 🎉", "This coupon entitles Meagan to:", p);
+    else champion();
+  }
+  window.capsulePrize = function(tier){
+    if (tier === 2){
+      const p = pickPrize(JACKPOTS) || pickPrize(PRIZES);
+      if (p) showCoupon("🌈 ULTRA RARE!! 🌈", "The jackpot capsule! Meagan wins:", p);
+      else champion();
+    } else {
+      const p = pickPrize(PRIZES);
+      if (p) showCoupon("✨ GOLD CAPSULE! ✨", "A bonus prize was hiding inside:", p);
+      else champion();
+    }
+  };
   $("couponBtn").addEventListener("click", ()=> prizeOv.classList.remove("show"));
 
   /* ---- game overlay plumbing ---- */
@@ -1345,6 +1576,19 @@
     btn.addEventListener("click", ()=>{
       gOv.classList.add("show");
       launchers[btn.dataset.game]();
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  const btns = document.querySelectorAll(".tabs button");
+  btns.forEach(b=>{
+    b.addEventListener("click", ()=>{
+      btns.forEach(x=> x.classList.toggle("on", x === b));
+      document.querySelectorAll(".tab-view").forEach(v=>
+        v.classList.toggle("on", v.id === b.dataset.tab));
+      window.scrollTo({ top:0, behavior:"smooth" });
     });
   });
 })();
