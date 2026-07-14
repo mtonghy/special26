@@ -239,6 +239,33 @@
     border-radius:999px; padding:6px 14px;
   }
   .wallet li.empty{ background:none; border:none; color:var(--sea); font-weight:500; }
+  .wallet li.active{ cursor:pointer; transition:transform .15s, box-shadow .15s; }
+  .wallet li.active:hover{ transform:translateY(-2px); box-shadow:0 6px 14px rgba(224,106,75,.28); }
+  .wallet li.active:focus-visible{ outline:3px solid var(--sea); outline-offset:2px; }
+  .wallet li.used{
+    background:rgba(255,255,255,.45); border-color:rgba(22,87,122,.22);
+    color:var(--sea); text-decoration:line-through; opacity:.6; font-weight:600;
+  }
+  .wallet-hint{
+    text-align:center; font-size:12px; font-weight:600; color:var(--sea);
+    margin-top:10px; opacity:.85;
+  }
+
+  /* ---- redeem modal actions ---- */
+  .redeem-actions{ display:flex; flex-direction:column; gap:9px; padding:16px 22px 20px; }
+  .redeem-actions button{
+    cursor:pointer; border:none; font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700; font-size:15px; padding:12px; border-radius:999px;
+    transition:transform .12s, box-shadow .12s;
+  }
+  .redeem-actions button:focus-visible{ outline:3px solid var(--sea); outline-offset:2px; }
+  .redeem-actions .primary{
+    color:#fff; background:linear-gradient(180deg,var(--coral),var(--coral-d));
+    box-shadow:0 5px 0 #B84E33;
+  }
+  .redeem-actions .primary:active{ transform:translateY(3px); box-shadow:0 2px 0 #B84E33; }
+  .redeem-actions .secondary{ color:var(--sea); background:#fff; border:2px solid rgba(22,87,122,.3); }
+  .redeem-actions .ghost{ background:none; color:var(--sea); font-weight:600; font-size:14px; }
 
   /* ---- game overlay ---- */
   .goverlay{
@@ -359,14 +386,14 @@
   #gate{
     position:fixed; inset:0; z-index:100; overflow:hidden;
     display:flex; align-items:center; justify-content:center; flex-direction:column;
-    background:linear-gradient(180deg,#FFE3F0 0%, #FFC9E0 45%, #FFB3D2 100%);
+    background:linear-gradient(180deg,#E9FBF9 0%, #C9F3EF 45%, #A9E9E2 100%);
     font-family:'Zen Maru Gothic','Quicksand',sans-serif;
     transition:opacity .8s, transform .8s;
   }
   #gate.unlocked{ opacity:0; transform:scale(1.08); pointer-events:none; }
 
   /* sakura branches in corners */
-  .branch{ position:absolute; font-size:70px; filter:drop-shadow(0 4px 8px rgba(255,120,170,.3)); animation:branchSway 4s ease-in-out infinite; }
+  .branch{ position:absolute; font-size:70px; filter:drop-shadow(0 4px 8px rgba(10,186,181,.28)); animation:branchSway 4s ease-in-out infinite; }
   @keyframes branchSway{ 50%{ transform:rotate(6deg) scale(1.05); } }
 
   /* falling petals */
@@ -401,37 +428,37 @@
   .lock-card{
     position:relative; z-index:5; text-align:center;
     background:rgba(255,255,255,.82); backdrop-filter:blur(6px);
-    border:3px solid #FF9EC7; border-radius:34px;
+    border:3px solid #7FDCD4; border-radius:34px;
     padding:34px 30px 30px; width:min(370px,88vw);
-    box-shadow:0 20px 50px rgba(255,110,165,.35), 0 0 0 8px rgba(255,255,255,.35);
+    box-shadow:0 20px 50px rgba(10,186,181,.35), 0 0 0 8px rgba(255,255,255,.35);
     animation:cardBob 3s ease-in-out infinite;
   }
   @keyframes cardBob{ 50%{ transform:translateY(-8px); } }
   .lock-card .lock-emoji{ font-size:52px; display:inline-block; animation:floatUp 2.2s ease-in-out infinite; }
-  .lock-card h2{ font-weight:900; font-size:26px; color:#E14E8A; margin-top:4px; }
+  .lock-card h2{ font-weight:900; font-size:26px; color:#0AA39E; margin-top:4px; }
   .lock-card .hint{
-    margin:10px auto 16px; font-weight:700; font-size:15px; color:#B23A6E;
-    background:#FFE3F0; border:2px dashed #FF9EC7; border-radius:999px;
+    margin:10px auto 16px; font-weight:700; font-size:15px; color:#0B7F7A;
+    background:#DDF9F6; border:2px dashed #8FE3DB; border-radius:999px;
     padding:8px 18px; width:fit-content;
   }
   .lock-card input{
     width:100%; text-align:center; font-family:inherit; font-weight:700;
-    font-size:22px; color:#B23A6E; letter-spacing:.2em;
-    padding:12px; border-radius:18px; border:3px solid #FFB7D5;
-    background:#FFF6FA; outline:none; transition:border-color .2s, box-shadow .2s;
+    font-size:22px; color:#0B7F7A; letter-spacing:.2em;
+    padding:12px; border-radius:18px; border:3px solid #A8EBE4;
+    background:#F3FDFC; outline:none; transition:border-color .2s, box-shadow .2s;
   }
-  .lock-card input:focus{ border-color:#E14E8A; box-shadow:0 0 0 5px rgba(255,158,199,.35); }
+  .lock-card input:focus{ border-color:#0AA39E; box-shadow:0 0 0 5px rgba(10,186,181,.3); }
   .lock-card button{
     margin-top:14px; width:100%; cursor:pointer; border:none;
     font-family:inherit; font-weight:900; font-size:18px; letter-spacing:.08em;
-    color:#fff; background:linear-gradient(180deg,#FF8FBE,#E14E8A);
+    color:#fff; background:linear-gradient(180deg,#5BD6CD,#0ABAB5);
     padding:13px; border-radius:999px;
-    box-shadow:0 6px 0 #C23771, 0 12px 24px rgba(225,78,138,.35);
+    box-shadow:0 6px 0 #08918C, 0 12px 24px rgba(10,186,181,.35);
     transition:transform .12s, box-shadow .12s;
   }
-  .lock-card button:active{ transform:translateY(4px); box-shadow:0 2px 0 #C23771; }
-  .lock-card button:focus-visible, .lock-card input:focus-visible{ outline:3px solid #E14E8A; outline-offset:2px; }
-  .lock-msg{ min-height:24px; margin-top:12px; font-weight:700; font-size:15px; color:#E14E8A; }
+  .lock-card button:active{ transform:translateY(4px); box-shadow:0 2px 0 #08918C; }
+  .lock-card button:focus-visible, .lock-card input:focus-visible{ outline:3px solid #0ABAB5; outline-offset:2px; }
+  .lock-msg{ min-height:24px; margin-top:12px; font-weight:700; font-size:15px; color:#0AA39E; }
   .lock-card.wrong{ animation:wrongShake .5s ease; }
   @keyframes wrongShake{
     20%{ transform:translateX(-12px) rotate(-2deg);} 40%{ transform:translateX(12px) rotate(2deg);}
@@ -465,19 +492,19 @@
 <body class="locked">
   <!-- ============ SAKURA PASSWORD GATE ============ -->
   <div id="gate">
-    <div class="branch" style="top:-14px; left:-10px;">🌸🌸</div>
-    <div class="branch" style="top:-10px; right:-8px; animation-delay:1.2s;">🌸🌸</div>
-    <div class="branch" style="bottom:120px; left:-14px; animation-delay:2s;">🌷</div>
-    <div class="branch" style="bottom:150px; right:-6px; animation-delay:.6s;">💮</div>
+    <div class="branch" style="top:-14px; left:-10px;">🩵💠</div>
+    <div class="branch" style="top:-10px; right:-8px; animation-delay:1.2s;">💠🩵</div>
+    <div class="branch" style="bottom:120px; left:-14px; animation-delay:2s;">🐚</div>
+    <div class="branch" style="bottom:150px; right:-6px; animation-delay:.6s;">💎</div>
 
     <div class="lock-card" id="lockCard">
-      <span class="lock-emoji">🌸🔒🌸</span>
+      <span class="lock-emoji">💎🔒💎</span>
       <h2>ひみつのページ！</h2>
-      <div style="font-weight:700; color:#B23A6E; font-size:14px;">This page is a secret… prove it's you!</div>
+      <div style="font-weight:700; color:#0B7F7A; font-size:14px;">This page is a secret… prove it's you!</div>
       <div class="hint">🎂 Hint: your age this year</div>
       <input type="password" id="pwInput" inputmode="numeric" autocomplete="off"
              placeholder="・・・" aria-label="Password">
-      <button id="pwBtn">はいる · ENTER 🌸</button>
+      <button id="pwBtn">はいる · ENTER 💎</button>
       <div class="lock-msg" id="pwMsg"></div>
     </div>
   </div>
@@ -599,6 +626,7 @@
     <div class="wallet">
       <h3>🎟️ Prize wallet</h3>
       <ul id="walletList"><li class="empty">No prizes yet… go win some!</li></ul>
+      <div class="wallet-hint" id="walletHint" style="display:none;">Tap a prize to cash it in 💌</div>
     </div>
   </section>
 
@@ -636,6 +664,25 @@
     </div>
   </div>
 
+  <!-- redeem prize popup -->
+  <div class="goverlay prize-layer" id="redeemOverlay" role="dialog" aria-modal="true" aria-label="Redeem prize">
+    <div class="coupon">
+      <div class="coupon-top">🎟️ CASH IT IN 🎟️</div>
+      <div class="coupon-body">
+        <div class="coupon-label">Redeeming this coupon:</div>
+        <div class="coupon-prize" id="redeemPrize"></div>
+        <div class="coupon-note">a cute little email goes to Matthew 💌</div>
+      </div>
+      <div class="redeem-actions">
+        <button class="primary" id="redeemGmail">📨 Send via Gmail</button>
+        <button class="secondary" id="redeemText">💬 Send via iMessage</button>
+        <button class="secondary" id="redeemMail">✉️ Use my email app</button>
+        <button class="secondary" id="redeemDone">😘 Mark as used — I'll tell him in person</button>
+        <button class="ghost" id="redeemCancel">← Not yet, saving it</button>
+      </div>
+    </div>
+  </div>
+
   <!-- reveal overlay -->
   <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Memory revealed">
     <div class="ov-inner">
@@ -669,7 +716,7 @@
   if (open){ unlock(true); }
 
   /* ---- falling petals ---- */
-  const petalChars = ["🌸","🌸","🌸","💮","🩷","✿"];
+  const petalChars = ["🩵","🩵","💠","🤍","🫧","❄️"];
   if (!reduce) for (let i=0;i<26;i++){
     const p = document.createElement("div");
     p.className = "petal";
@@ -680,7 +727,7 @@
   }
 
   /* ---- floating cuties ---- */
-  const floaties = ["🐣","💖","🎀","🍡","🧁","🐰","🍓","🫧","🌷","🐥"];
+  const floaties = ["🐣","🩵","💎","🐬","🧁","🐰","🍓","🫧","🐚","🐥"];
   if (!reduce) floaties.forEach((f,i)=>{
     const d = document.createElement("div");
     d.className = "floaty";
@@ -741,7 +788,7 @@
     "ぶっぶー！🦆 Quack! That's not it…",
     "🪿 HONK! The goose says no.",
     "ちがうよ〜 🐥 try again!",
-    "🌸 So close… maybe? Not really. Again!"
+    "💠 So close… maybe? Not really. Again!"
   ];
   let wrongCount = 0;
   function check(){
@@ -754,7 +801,7 @@
         for (let i=0;i<24;i++){
           const b = document.createElement("div");
           b.className = "burst";
-          b.textContent = ["🌸","💮","✨","💖"][i%4];
+          b.textContent = ["💎","🩵","✨","🤍"][i%4];
           b.style.left = (r.left + r.width/2) + "px";
           b.style.top  = (r.top + r.height/2) + "px";
           b.style.setProperty("--bx", (Math.random()*520-260)+"px");
@@ -992,20 +1039,112 @@
   try { won = JSON.parse(localStorage.getItem(PKEY)) || []; } catch(e){}
   function saveWon(){ try{ localStorage.setItem(PKEY, JSON.stringify(won)); }catch(e){} }
 
+  const RKEY = "gachaPrizesUsed";
+  let used = [];
+  try { used = JSON.parse(localStorage.getItem(RKEY)) || []; } catch(e){}
+  function saveUsed(){ try{ localStorage.setItem(RKEY, JSON.stringify(used)); }catch(e){} }
+
   const walletList = $("walletList");
   function renderWallet(){
     walletList.innerHTML = "";
+    const active = won.filter(p => !used.includes(p));
+    const spent  = won.filter(p =>  used.includes(p));
+    $("walletHint").style.display = active.length ? "block" : "none";
     if (!won.length){
       walletList.innerHTML = '<li class="empty">No prizes yet… go win some!</li>';
       return;
     }
-    won.forEach(p=>{
+    active.forEach(p=>{
       const li = document.createElement("li");
+      li.className = "active";
       li.textContent = p;
+      li.setAttribute("role","button");
+      li.setAttribute("tabindex","0");
+      li.setAttribute("aria-label","Redeem: " + p);
+      li.addEventListener("click", ()=> openRedeem(p));
+      li.addEventListener("keydown", e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); openRedeem(p); } });
+      walletList.appendChild(li);
+    });
+    spent.forEach(p=>{
+      const li = document.createElement("li");
+      li.className = "used";
+      li.textContent = "✔ " + p;
       walletList.appendChild(li);
     });
   }
   renderWallet();
+
+  /* ---- redeem flow: prefilled email to Matthew ---- */
+  const MATTHEW = "matthewhytong@gmail.com";
+  const MATTHEW_PHONE = "+16048128018";
+  const redeemOv = $("redeemOverlay");
+  let redeeming = null;
+
+  function openRedeem(p){
+    redeeming = p;
+    $("redeemPrize").textContent = p;
+    redeemOv.classList.add("show");
+  }
+  function closeRedeem(){
+    redeemOv.classList.remove("show");
+    redeeming = null;
+  }
+  function emailBits(p){
+    const su = "🎟️ Meagan is cashing in a prize!";
+    const body =
+      "Hi Matthew! 💌\n\n" +
+      "I am officially redeeming this coupon:\n\n" +
+      "🎟️ " + p + "\n\n" +
+      "Redeemed on " + new Date().toLocaleDateString() +
+      ". No expiry, no take-backs — you said so yourself.\n\n" +
+      "— Meagan 🌺";
+    return { su, body };
+  }
+  function heartBurst(){
+    if (reduce) return;
+    const chars = ["💌","🩵","🎟️","✨"];
+    for (let i = 0; i < 14; i++){
+      const b = document.createElement("div");
+      b.className = "burst";
+      b.textContent = chars[i % chars.length];
+      b.style.left = (innerWidth/2) + "px";
+      b.style.top  = (innerHeight/2) + "px";
+      b.style.setProperty("--bx", (Math.random()*520 - 260) + "px");
+      b.style.setProperty("--by", (Math.random()*520 - 260) + "px");
+      document.body.appendChild(b);
+      setTimeout(()=> b.remove(), 1300);
+    }
+  }
+  function markUsed(){
+    if (!redeeming) return;
+    if (!used.includes(redeeming)){ used.push(redeeming); saveUsed(); }
+    renderWallet();
+    if (redeeming.includes("DANBO")) danboBurst(); else heartBurst();
+    closeRedeem();
+  }
+  $("redeemGmail").addEventListener("click", ()=>{
+    if (!redeeming) return;
+    const { su, body } = emailBits(redeeming);
+    window.open("https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(MATTHEW) +
+      "&su=" + encodeURIComponent(su) + "&body=" + encodeURIComponent(body), "_blank");
+    markUsed();
+  });
+  $("redeemText").addEventListener("click", ()=>{
+    if (!redeeming) return;
+    const msg = "hi Matthew 💌 I'm officially cashing in my coupon:\n\n🎟️ " + redeeming +
+      "\n\nredeemed " + new Date().toLocaleDateString() + " — no expiry, no take-backs 😌🌺";
+    location.href = "sms:" + encodeURIComponent(MATTHEW_PHONE) + "&body=" + encodeURIComponent(msg);
+    markUsed();
+  });
+  $("redeemMail").addEventListener("click", ()=>{
+    if (!redeeming) return;
+    const { su, body } = emailBits(redeeming);
+    location.href = "mailto:" + MATTHEW +
+      "?subject=" + encodeURIComponent(su) + "&body=" + encodeURIComponent(body);
+    markUsed();
+  });
+  $("redeemDone").addEventListener("click", markUsed);
+  $("redeemCancel").addEventListener("click", closeRedeem);
 
   /* ---- prize popup ---- */
   const prizeOv = $("prizeOverlay");
@@ -1020,7 +1159,7 @@
       document.querySelector(".coupon-top").textContent = "🎉 PRIZE GET! 🎉";
       document.querySelector(".coupon-label").textContent = "This coupon entitles Meagan to:";
     } else {
-      document.querySelector(".coupon-top").textContent = "🌸 CHAMPION 🌸";
+      document.querySelector(".coupon-top").textContent = "💎 CHAMPION 💎";
       document.querySelector(".coupon-label").textContent = "You've already won…";
       prizeEl.textContent = "every single prize! (and Matthew's whole heart)";
     }
