@@ -441,6 +441,25 @@
   .burst{ position:fixed; z-index:110; font-size:26px; pointer-events:none;
     animation:burstFly 1.1s ease-out forwards; }
   @keyframes burstFly{ to{ transform:translate(var(--bx),var(--by)) rotate(540deg); opacity:0; } }
+
+  /* ================= FLOATING RAMEN DANBO BOWL ================= */
+  .danbo-float{ position:fixed; z-index:1; pointer-events:none; will-change:transform; }
+  .danbo-float .danbo-bob{ animation:danboBob 3.6s ease-in-out infinite; }
+  @keyframes danboBob{ 50%{ transform:translateY(-16px) rotate(5deg); } }
+  .danbo-float svg{ display:block; filter:drop-shadow(0 10px 16px rgba(11,50,71,.22)); }
+  .danbo-steam{ opacity:0; animation:steamRise 2.8s ease-in-out infinite; }
+  .danbo-steam.s2{ animation-delay:.9s; }
+  .danbo-steam.s3{ animation-delay:1.7s; }
+  @keyframes steamRise{
+    0%{ opacity:0; transform:translateY(7px); }
+    30%{ opacity:.85; }
+    100%{ opacity:0; transform:translateY(-13px); }
+  }
+  .danbo-burst{ position:fixed; z-index:110; pointer-events:none;
+    animation:burstFly 1.2s ease-out forwards; }
+  @media (prefers-reduced-motion: reduce){
+    .danbo-float, .danbo-burst{ display:none !important; }
+  }
 </style>
 </head>
 <body class="locked">
@@ -874,7 +893,9 @@
     "1 kiss + hug 💋🤗",
     "Uni date 🎓",
     "Sushi date 🍣",
-    "Danbo date 🍲",
+    "Ramen DANBO date 🍜",
+    "Ramen DANBO — extra chashu, on me 🍜🥩",
+    "Late-night Ramen DANBO run 🍜🌙",
     "1 work pickup :) 🚗",
     "1 roadtrip? 🛣️",
     "1 massage 💆‍♀️",
@@ -892,6 +913,80 @@
   const PKEY = "gachaPrizesWon";
   const $ = id => document.getElementById(id);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- the DANBO bowl (tonkotsu, obviously) ---- */
+  const DANBO_SVG = `
+  <svg viewBox="0 0 120 118" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- steam -->
+    <path class="danbo-steam"    d="M45 40 q-6 -9 0 -16 q6 -8 0 -14" stroke="#B9D8DD" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path class="danbo-steam s2" d="M61 38 q6 -9 0 -17 q-6 -8 0 -14" stroke="#B9D8DD" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path class="danbo-steam s3" d="M77 40 q-5 -8 0 -14 q5 -7 0 -12" stroke="#B9D8DD" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <!-- rim -->
+    <ellipse cx="60" cy="56" rx="47" ry="14" fill="#FFFBF3" stroke="#D63A2F" stroke-width="3"/>
+    <!-- tonkotsu broth -->
+    <ellipse cx="60" cy="56" rx="42" ry="11" fill="#F3E3C4"/>
+    <!-- noodles -->
+    <path d="M30 55 q5 4 10 0 q5 -4 10 0 M52 59 q5 3 10 0" stroke="#F0C987" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- chashu -->
+    <circle cx="42" cy="53" r="9" fill="#D9A067" stroke="#B97E45" stroke-width="2"/>
+    <circle cx="42" cy="53" r="4" fill="#C88F55"/>
+    <!-- ajitama egg -->
+    <ellipse cx="76" cy="53" rx="9" ry="6.5" fill="#FFFBF3" stroke="#EBDCC0" stroke-width="1.5"/>
+    <circle cx="76" cy="53" r="3.6" fill="#F0A93F"/>
+    <!-- nori -->
+    <rect x="90" y="41" width="11" height="15" rx="1" fill="#24343A" transform="rotate(8 95 48)"/>
+    <!-- negi -->
+    <circle cx="58" cy="52" r="1.8" fill="#7BB661"/>
+    <circle cx="64" cy="55" r="1.8" fill="#7BB661"/>
+    <circle cx="51" cy="58" r="1.6" fill="#7BB661"/>
+    <!-- bowl -->
+    <path d="M14 60 Q19 96 60 101 Q101 96 106 60 Q60 74 14 60 Z" fill="#FFFBF3" stroke="#E6D9C4" stroke-width="2.5"/>
+    <path d="M21 72 Q60 84 99 72" stroke="#D63A2F" stroke-width="3.5" fill="none"/>
+    <text x="60" y="94" text-anchor="middle" font-size="15" font-weight="900" fill="#D63A2F"
+          font-family="'Zen Maru Gothic',sans-serif">暖暮</text>
+    <!-- foot -->
+    <path d="M46 101 h28 v5 a3 3 0 0 1 -3 3 H49 a3 3 0 0 1 -3 -3 Z" fill="#F0E7D6" stroke="#E6D9C4" stroke-width="2"/>
+  </svg>`;
+
+  /* ---- ambient bowls drifting across the page ---- */
+  function spawnDanbo(initial){
+    if (reduce) return;
+    const w = document.createElement("div");
+    w.className = "danbo-float";
+    w.innerHTML = '<div class="danbo-bob">' + DANBO_SVG + '</div>';
+    w.querySelector("svg").style.width = (72 + Math.random()*44) + "px";
+    w.querySelector(".danbo-bob").style.animationDelay = (Math.random()*3) + "s";
+    const ltr = Math.random() > .5;
+    w.style.top = (10 + Math.random()*55) + "vh";
+    w.style.left = ltr ? "-150px" : "100vw";
+    document.body.appendChild(w);
+    const dist = innerWidth + 320;
+    const anim = w.animate(
+      [{ transform:"translateX(0)" }, { transform:`translateX(${ltr ? dist : -dist}px)` }],
+      { duration: (26 + Math.random()*18) * 1000,
+        delay: initial ? Math.random()*7000 : 2000 + Math.random()*6000,
+        easing:"linear" });
+    anim.onfinish = ()=>{ w.remove(); spawnDanbo(false); };
+  }
+  spawnDanbo(true);
+  spawnDanbo(true);
+
+  /* ---- little bowl fireworks for DANBO prizes ---- */
+  function danboBurst(){
+    if (reduce) return;
+    for (let i = 0; i < 8; i++){
+      const b = document.createElement("div");
+      b.className = "danbo-burst";
+      b.innerHTML = DANBO_SVG;
+      b.querySelector("svg").style.width = (32 + Math.random()*26) + "px";
+      b.style.left = (innerWidth/2) + "px";
+      b.style.top  = (innerHeight/2) + "px";
+      b.style.setProperty("--bx", (Math.random()*560 - 280) + "px");
+      b.style.setProperty("--by", (Math.random()*560 - 280) + "px");
+      document.body.appendChild(b);
+      setTimeout(()=> b.remove(), 1300);
+    }
+  }
 
   let won = [];
   try { won = JSON.parse(localStorage.getItem(PKEY)) || []; } catch(e){}
@@ -921,6 +1016,7 @@
       const p = remaining[Math.floor(Math.random()*remaining.length)];
       won.push(p); saveWon(); renderWallet();
       prizeEl.textContent = p;
+      if (p.includes("DANBO")) danboBurst();
       document.querySelector(".coupon-top").textContent = "🎉 PRIZE GET! 🎉";
       document.querySelector(".coupon-label").textContent = "This coupon entitles Meagan to:";
     } else {
