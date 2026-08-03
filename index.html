@@ -535,6 +535,7 @@
   .calc-opt.right{ background:#DFF6E3; border-color:#57B368; }
   .calc-opt.wrongPick{ background:#FFE3DA; border-color:var(--coral-d); animation:cellBad .4s ease; }
   .calc-opt:disabled{ opacity:.92; cursor:default; }
+  .calc-opt.small{ font-size:13.5px; line-height:1.35; padding:12px 7px; }
   .calc-opt:focus-visible, .bw-bub:focus-visible{ outline:3px solid var(--coral); outline-offset:1px; }
 
   /* ---- flappy goose ---- */
@@ -1547,7 +1548,8 @@
     "JACKPOT: a full surprise date day — I plan everything 💘",
     "JACKPOT: weekend roadtrip, you pick the destination 🛣️✨",
     "JACKPOT: unlimited Ramen DANBO day 🍜♾️",
-    "JACKPOT: spa + treat-yourself day, on me 💆‍♀️💅"
+    "JACKPOT: spa + treat-yourself day, on me 💆‍♀️💅",
+    "JACKPOT: rainy-day cuddle & chill — Uber + Netflix, all day long 🌧️🛋️🍿"
   ];
   const couponTop   = document.querySelector(".coupon-top");
   const couponLabel = document.querySelector(".coupon-label");
@@ -2016,51 +2018,140 @@
     return a + xs;
   }
   function rnd(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
-  function calcQuestion(){
-    const kind = rnd(0, 6);
-    let q, ok, wrong;
-    if (kind === 0){                                   /* power rule */
+  function pickFrom(bank){
+    const t = bank[rnd(0, bank.length - 1)];
+    return { q: t[0], ok: t[1], wrong: [...t[2]] };
+  }
+
+  /* famous limits — L'Hôpital & friends */
+  const LHOPITAL = [
+    ["lim x→0   (eˣ − 1) ⁄ x   = ?", "1", ["0","e","∞"]],
+    ["lim x→0   (1 − cos x) ⁄ x²   = ?", "1/2", ["0","1","∞"]],
+    ["lim x→0   (1 − cos x) ⁄ x   = ?", "0", ["1","1/2","∞"]],
+    ["lim x→∞   ln x ⁄ x   = ?", "0", ["1","e","∞"]],
+    ["lim x→0   tan x ⁄ x   = ?", "1", ["0","π","∞"]],
+    ["lim x→∞   x² ⁄ eˣ   = ?", "0", ["1","2","∞"]],
+    ["lim x→0⁺   x · ln x   = ?", "0", ["−∞","−1","1"]]
+  ];
+  /* famous integrals, incl. by parts & improper */
+  const FAMOUS_INT = [
+    ["∫ 1/x dx  = ?", "ln|x| + C", ["−1/x² + C","x·ln x + C","eˣ + C"]],
+    ["∫ eˣ dx  = ?", "eˣ + C", ["x·eˣ + C","eˣ⁺¹/(x+1) + C","ln x + C"]],
+    ["∫ sin x dx  = ?", "−cos x + C", ["cos x + C","−sin x + C","tan x + C"]],
+    ["∫ x·eˣ dx  = ?   (by parts!)", "(x − 1)eˣ + C", ["(x + 1)eˣ + C","x·eˣ + C","½x²·eˣ + C"]],
+    ["∫₁^∞  1/x²  dx  = ?", "1", ["diverges","0","2"]],
+    ["∫₁^∞  1/x  dx  = ?", "diverges", ["1","0","e"]],
+    ["∫₀^π  sin x  dx  = ?", "2", ["0","1","π"]]
+  ];
+  /* theory — differentiation & the big theorems (no computation needed) */
+  const THEORY_DIFF = [
+    ["If f′(x) > 0 on an interval, then f is … ?", "increasing", ["decreasing","constant","concave down"]],
+    ["If f″(x) > 0 on an interval, the graph of f is … ?", "concave up", ["concave down","decreasing","linear"]],
+    ["f′ changes from + to − at critical point c. Then c is a local … ?", "maximum", ["minimum","inflection point","asymptote"]],
+    ["If f is differentiable at a, then f must also be … at a", "continuous", ["increasing","bounded","concave"]],
+    ["True or false: continuous at a ⇒ differentiable at a", "False — e.g. |x| at 0", ["True, always","Only if f is bounded","Only for polynomials"]],
+    ["Geometrically, f′(a) is the … ?", "slope of the tangent line at a", ["area under f near a","slope of the secant line","curvature at a"]],
+    ["d/dx ∫ₐˣ f(t) dt  = ?   (FTC part 1)", "f(x)", ["f′(x)","f(a)","0"]],
+    ["∫ₐᵇ f′(x) dx  = ?   (FTC part 2)", "f(b) − f(a)", ["f′(b) − f′(a)","f(a) − f(b)","f(b) · f(a)"]],
+    ["The Mean Value Theorem gives a c in (a,b) with f′(c) = … ?", "(f(b) − f(a)) ⁄ (b − a)", ["0","f(b) − f(a)","(b − a) ⁄ (f(b) − f(a))"]],
+    ["Rolle's theorem (f(a) = f(b)) concludes there is a c with … ?", "f′(c) = 0", ["f(c) = 0","f″(c) = 0","f′(c) = 1"]],
+    ["Continuous f on [a,b] hits every value between f(a) and f(b) — which theorem?", "Intermediate Value Theorem", ["Mean Value Theorem","Extreme Value Theorem","Squeeze Theorem"]],
+    ["Continuous f on [a,b] attains a max and a min — which theorem?", "Extreme Value Theorem", ["Intermediate Value Theorem","Rolle's Theorem","L'Hôpital's Rule"]],
+    ["The linearization of f at a is L(x) = … ?", "f(a) + f′(a)(x − a)", ["f(a) − f′(a)(x − a)","f′(a)(x − a)","f(a) + f″(a)(x − a)"]],
+    ["An inflection point of f is where … ?", "concavity changes sign", ["f′ = 0, always","f has a maximum","f is undefined"]]
+  ];
+  /* theory — sequences & series (2nd year flavour) */
+  const THEORY_SERIES = [
+    ["The harmonic series  Σ 1/n  … ?", "diverges", ["converges to 1","converges to e","converges to π"]],
+    ["A geometric series  Σ rⁿ  converges exactly when … ?", "|r| < 1", ["r < 1","r ≤ 1","r > 0"]],
+    ["If Σ aₙ converges, then lim aₙ = … ?", "0", ["1","∞","a₀"]],
+    ["True or false: lim aₙ = 0 guarantees Σ aₙ converges", "False — see Σ 1/n", ["True, always","Only if aₙ > 0","Only if aₙ decreases"]],
+    ["The p-series  Σ 1/nᵖ  converges exactly when … ?", "p > 1", ["p ≥ 1","p < 1","p > 0"]],
+    ["Σ (−1)ⁿ⁺¹/n  converges by the … ?", "alternating series test", ["geometric series test","divergence test","it actually diverges"]],
+    ["In the Taylor series of eˣ at 0, the coefficient of xⁿ is … ?", "1/n!", ["1/n","n!","1/(n+1)"]],
+    ["First two Taylor terms:  sin x ≈ … ?", "x − x³/6", ["x + x³/6","x − x²/2","1 − x²/2"]],
+    ["The ratio test is inconclusive when its limit equals … ?", "1", ["0","∞","1/2"]],
+    ["For |x| < 1,  1/(1 − x)  = … ?", "1 + x + x² + x³ + …", ["1 − x + x² − x³ + …","x + x²/2 + x³/3 + …","1 + x² + x⁴ + …"]]
+  ];
+
+  const CALC_GENS = [
+    ()=>{                                            /* 0 power rule */
       const a = rnd(2,5), n = rnd(2,5);
-      q = "d/dx  " + xTerm(a,n) + "  = ?";
-      ok = xTerm(a*n, n-1);
-      wrong = [xTerm(a, n-1), xTerm(a*n, n), xTerm(a*(n-1), n-1)];
-    } else if (kind === 1){                            /* derivative at a point */
+      return { q: "d/dx  " + xTerm(a,n) + "  = ?", ok: xTerm(a*n, n-1),
+        wrong: [xTerm(a, n-1), xTerm(a*n, n), xTerm(a*(n-1), n-1)] };
+    },
+    ()=>{                                            /* 1 derivative at a point */
       const n = rnd(2,3), k = rnd(2,4);
-      q = "f(x) = " + xTerm(1,n) + " ,   f′(" + k + ") = ?";
-      ok = String(n * Math.pow(k, n-1));
-      wrong = [String(Math.pow(k,n)), String(n*Math.pow(k,n)), String(Math.pow(k,n-1))];
-    } else if (kind === 2){                            /* antiderivative */
+      return { q: "f(x) = " + xTerm(1,n) + " ,   f′(" + k + ") = ?", ok: String(n * Math.pow(k, n-1)),
+        wrong: [String(Math.pow(k,n)), String(n*Math.pow(k,n)), String(Math.pow(k,n-1))] };
+    },
+    ()=>{                                            /* 2 antiderivative */
       const n = rnd(1,3), m = rnd(1,3), a = m*(n+1);
-      q = "∫ " + xTerm(a,n) + " dx  = ?";
-      ok = xTerm(m, n+1) + " + C";
-      wrong = [xTerm(a, n+1) + " + C", xTerm(a*n, Math.max(0,n-1)) + " + C", xTerm(m, n) + " + C"];
-    } else if (kind === 3){                            /* limit at infinity */
+      return { q: "∫ " + xTerm(a,n) + " dx  = ?", ok: xTerm(m, n+1) + " + C",
+        wrong: [xTerm(a, n+1) + " + C", xTerm(a*n, Math.max(0,n-1)) + " + C", xTerm(m, n) + " + C"] };
+    },
+    ()=>{                                            /* 3 limit at infinity */
       const c = rnd(1,4), r = rnd(2,5), a = c*r, b = rnd(1,9), d = rnd(1,9);
-      q = "lim x→∞   (" + a + "x + " + b + ") ⁄ (" + c + "x + " + d + ")  = ?";
-      ok = String(r);
-      wrong = [String(a), String(c), "∞"];
-    } else if (kind === 4){                            /* small-angle limit */
+      return { q: "lim x→∞   (" + a + "x + " + b + ") ⁄ (" + c + "x + " + d + ")  = ?", ok: String(r),
+        wrong: [String(a), String(c), "∞"] };
+    },
+    ()=>{                                            /* 4 small-angle limit */
       const a = rnd(2,4);
-      q = "lim x→0   sin(" + a + "x) ⁄ x  = ?";
-      ok = String(a);
-      wrong = ["0", "1", "∞"];
-    } else if (kind === 5){                            /* definite integral */
+      return { q: "lim x→0   sin(" + a + "x) ⁄ x  = ?", ok: String(a), wrong: ["0", "1", "∞"] };
+    },
+    ()=>{                                            /* 5 definite integral */
       const b = rnd(2,5);
-      q = "∫₀" + pow(b) + "  2x dx  = ?";
-      ok = String(b*b);
-      wrong = [String(2*b), String(b), String(b*b*b)];
-    } else {                                           /* classic table */
-      const table = [
+      return { q: "∫₀" + pow(b) + "  2x dx  = ?", ok: String(b*b),
+        wrong: [String(2*b), String(b), String(b*b*b)] };
+    },
+    ()=>{                                            /* 6 classic table */
+      return pickFrom([
         ["d/dx  sin x  = ?", "cos x", ["−cos x","−sin x","tan x"]],
         ["d/dx  cos x  = ?", "−sin x", ["sin x","−cos x","sec x"]],
         ["d/dx  eˣ  = ?", "eˣ", ["x·eˣ⁻¹","eˣ⁻¹","ln x"]],
         ["d/dx  ln x  = ?", "1/x", ["ln x","x","eˣ"]],
         ["∫ cos x dx  = ?", "sin x + C", ["−sin x + C","cos x + C","tan x + C"]]
-      ];
-      const t = table[rnd(0, table.length - 1)];
-      q = t[0]; ok = t[1]; wrong = t[2];
-    }
-    wrong = [...new Set(wrong.filter(w => w !== ok))];
+      ]);
+    },
+    ()=>{                                            /* 7 chain rule */
+      const a = rnd(2,4), v = rnd(0,3);
+      if (v === 0) return { q: "d/dx  sin(" + a + "x)  = ?", ok: a + "·cos(" + a + "x)",
+        wrong: ["cos(" + a + "x)", "−" + a + "·cos(" + a + "x)", a + "·sin(" + a + "x)"] };
+      if (v === 1) return { q: "d/dx  cos(" + a + "x)  = ?", ok: "−" + a + "·sin(" + a + "x)",
+        wrong: [a + "·sin(" + a + "x)", "−sin(" + a + "x)", "−" + a + "·cos(" + a + "x)"] };
+      if (v === 2) return { q: "d/dx  e" + pow(a) + "ˣ  = ?", ok: a + "·e" + pow(a) + "ˣ",
+        wrong: ["e" + pow(a) + "ˣ", "x·e" + pow(a) + "ˣ", a + "·eˣ"] };
+      return { q: "d/dx  ln(" + a + "x)  = ?", ok: "1/x",
+        wrong: [a + "/x", "1/(" + a + "x)", a + "·ln x"] };
+    },
+    ()=>{                                            /* 8 second derivative */
+      const a = rnd(1,3), n = rnd(3,5);
+      return { q: "d²/dx²  " + xTerm(a,n) + "  = ?", ok: xTerm(a*n*(n-1), n-2),
+        wrong: [xTerm(a*n, n-1), xTerm(a*n*n, n-2), xTerm(a*n*(n-1), n-1)] };
+    },
+    ()=> pickFrom(LHOPITAL),                         /* 9 */
+    ()=> pickFrom(FAMOUS_INT),                       /* 10 */
+    ()=>{                                            /* 11 series sums */
+      const v = rnd(0,3);
+      if (v === 0){
+        const k = rnd(2,4);
+        const sums = { 2:"2", 3:"3⁄2", 4:"4⁄3" };
+        return { q: "Σ (1/" + k + ")ⁿ ,  n from 0 to ∞  = ?", ok: sums[k],
+          wrong: ["1", String(k+1), "diverges"] };
+      }
+      if (v === 1) return { q: "Σ 1/n² ,  n from 1 to ∞  = ?", ok: "π²/6", wrong: ["π²/4","π/2","diverges"] };
+      if (v === 2) return { q: "Σ 1/n  (harmonic series)  = ?", ok: "diverges", wrong: ["0","1","e"] };
+      return { q: "Σ 1/2ⁿ ,  n from 1 to ∞  = ?", ok: "1", wrong: ["2","1/2","diverges"] };
+    },
+    ()=> pickFrom(THEORY_DIFF),                      /* 12 */
+    ()=> pickFrom(THEORY_DIFF),                      /* 13 (theory weighted up) */
+    ()=> pickFrom(THEORY_SERIES),                    /* 14 */
+    ()=> pickFrom(THEORY_SERIES)                     /* 15 */
+  ];
+  function calcQuestion(){
+    const gen = CALC_GENS[rnd(0, CALC_GENS.length - 1)]();
+    const q = gen.q, ok = gen.ok;
+    let wrong = [...new Set(gen.wrong.filter(w => w !== ok))];
     let padTry = 2;
     while (wrong.length < 3){
       const cand = /^-?\d+$/.test(ok) ? String(Number(ok) + padTry) : ok + " ";
@@ -2096,6 +2187,7 @@
         const b = document.createElement("button");
         b.className = "calc-opt";
         b.textContent = o;
+        if (o.length > 12) b.classList.add("small");
         b.addEventListener("click", ()=>{
           if (lock) return;
           lock = true;
