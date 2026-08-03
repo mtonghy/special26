@@ -482,6 +482,79 @@
   .tango-sign.h{ right:-10px; top:50%; transform:translateY(-50%); }
   .tango-sign.v{ bottom:-10px; left:50%; transform:translateX(-50%); }
 
+  /* ---- game tiers ---- */
+  .tier-head{
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:900; font-size:15px;
+    color:var(--sea); margin:18px 0 9px; letter-spacing:.04em;
+  }
+  .tier-head.hard{ color:var(--coral-d); }
+  .game-card.hard{ border-color:rgba(224,106,75,.4); }
+  .game-card.hard:hover{ border-color:var(--coral); }
+
+  /* ---- bubble wrap ---- */
+  .bw-grid{
+    position:absolute; inset:0; display:grid; grid-template-columns:repeat(5,1fr);
+    grid-template-rows:repeat(8,1fr); gap:6px; padding:12px; touch-action:none;
+  }
+  .bw-bub{
+    position:relative; border:none; cursor:pointer; border-radius:50%; padding:0;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.98), rgba(214,243,241,.8) 46%, rgba(139,206,211,.9));
+    box-shadow:inset 0 -4px 8px rgba(11,50,71,.18), 0 3px 6px rgba(11,50,71,.16);
+    font-size:min(6vw,24px); display:flex; align-items:center; justify-content:center;
+    transition:transform .08s;
+  }
+  .bw-bub:active{ transform:scale(.9); }
+  .bw-bub.popped{
+    background:rgba(255,255,255,.32);
+    box-shadow:inset 0 2px 5px rgba(11,50,71,.22);
+    cursor:default; animation:bwPop .18s ease-out;
+  }
+  @keyframes bwPop{ 0%{ transform:scale(1.22);} 100%{ transform:scale(1);} }
+  .bw-bub .bw-under{ opacity:0; transform:scale(.4); transition:transform .18s, opacity .18s; pointer-events:none; }
+  .bw-bub.popped .bw-under{ opacity:1; transform:scale(1); }
+
+  /* ---- calculus cove ---- */
+  .calc-wrap{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px; padding:16px;
+  }
+  .calc-q{
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(18px,5.2vw,25px);
+    color:var(--ink); text-align:center; background:rgba(255,255,255,.88);
+    border:2px solid rgba(22,87,122,.2); border-radius:16px; padding:14px 18px;
+    min-width:72%; font-variant-numeric:tabular-nums;
+  }
+  .calc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; width:min(100%,340px); }
+  .calc-opt{
+    cursor:pointer; border:2px solid rgba(22,87,122,.25); border-radius:14px;
+    background:rgba(255,255,255,.92); font-family:'Quicksand',sans-serif; font-weight:700;
+    font-size:18px; color:var(--ink); padding:14px 8px;
+    transition:transform .1s, background .15s, border-color .15s;
+  }
+  .calc-opt:active{ transform:scale(.95); }
+  .calc-opt.right{ background:#DFF6E3; border-color:#57B368; }
+  .calc-opt.wrongPick{ background:#FFE3DA; border-color:var(--coral-d); animation:cellBad .4s ease; }
+  .calc-opt:disabled{ opacity:.92; cursor:default; }
+  .calc-opt:focus-visible, .bw-bub:focus-visible{ outline:3px solid var(--coral); outline-offset:1px; }
+
+  /* ---- flappy goose ---- */
+  .fg-field{
+    position:absolute; inset:0; overflow:hidden; cursor:pointer; touch-action:none;
+    background:linear-gradient(180deg,#E4F8F6 0%, var(--foam) 68%, #A9E0DA 100%);
+  }
+  .fg-goose{
+    position:absolute; left:0; top:0; font-size:32px; line-height:1; z-index:3;
+    will-change:transform; pointer-events:none;
+    filter:drop-shadow(0 3px 4px rgba(11,50,71,.25));
+  }
+  .fg-col{ position:absolute; top:0; bottom:0; left:0; z-index:2; pointer-events:none; will-change:transform; }
+  .fg-tube{
+    position:absolute; left:0; width:100%; overflow:hidden; text-align:center;
+    background:rgba(91,200,206,.22); border:2px solid rgba(22,87,122,.25); border-radius:12px;
+    font-size:21px; line-height:24px; white-space:pre;
+  }
+  .fg-fish{ position:absolute; left:0; top:0; font-size:24px; z-index:2; pointer-events:none; will-change:transform; }
+
   /* ---- prize coupon ---- */
   .prize-layer{ z-index:30; }
   .coupon{
@@ -750,7 +823,9 @@
   <!-- ============ MINI GAMES ============ -->
   <section class="games">
     <h2 class="games-title">ミニゲーム · Bonus Games</h2>
-    <p class="games-sub">Win a game, win a prize 🎟️ · 1 prize per game per day</p>
+    <p class="games-sub">Win a game, win a prize 🎟️ · 1 prize per game per day · resets at midnight PST</p>
+
+    <h3 class="tier-head">🌊 かんたん · Easy — simple prizes</h3>
     <div class="game-grid">
       <button class="game-card" data-game="shells">
         <span class="gc-emoji">🐚</span>
@@ -770,10 +845,32 @@
         <span class="gc-desc">Find all 8 pairs hiding under the sea</span>
         <span class="gc-done">🎟️ Prize claimed today</span>
       </button>
-      <button class="game-card" data-game="tango">
+      <button class="game-card" data-game="bubbles">
+        <span class="gc-emoji">🫧</span>
+        <span class="gc-name">Bubble Wrap</span>
+        <span class="gc-desc">Pop pop pop — find the 8 hiding fish · 🔊 sound on!</span>
+        <span class="gc-done">🎟️ Prize claimed today</span>
+      </button>
+    </div>
+
+    <h3 class="tier-head hard">🔥 むずかしい · Hard — high stakes</h3>
+    <div class="game-grid">
+      <button class="game-card hard" data-game="tango">
         <span class="gc-emoji">💞</span>
         <span class="gc-name">Heart Tango</span>
         <span class="gc-desc">Balance 🩵 & 🧡 — never three in a row</span>
+        <span class="gc-done">🎟️ Prize claimed today</span>
+      </button>
+      <button class="game-card hard" data-game="calc">
+        <span class="gc-emoji">🧮</span>
+        <span class="gc-name">Calculus Cove</span>
+        <span class="gc-desc">Derivatives, integrals & limits — 3 lives</span>
+        <span class="gc-done">🎟️ Prize claimed today</span>
+      </button>
+      <button class="game-card hard" data-game="flappy">
+        <span class="gc-emoji">🪿</span>
+        <span class="gc-name">Flappy Goose</span>
+        <span class="gc-desc">Flap through the duck towers, snack on fish</span>
         <span class="gc-done">🎟️ Prize claimed today</span>
       </button>
     </div>
@@ -1185,29 +1282,32 @@
 <script>
 /* ================= MINI GAMES & PRIZES ================= */
 (function(){
-  const PRIZES = [
+  const SIMPLE_PRIZES = [
     "1 picnic date 🧺",
     "1 kiss 💋",
     "1 kiss + hug 💋🤗",
-    "Uni date 🦔",
-    "Sushi date 🍣",
-    "Ramen DANBO date 🍜",
-    "Ramen DANBO — extra chashu, on me 🍜🥩",
-    "Late-night Ramen DANBO run 🍜🌙",
     "1 work pickup :) 🚗",
-    "1 roadtrip? 🛣️",
-    "1 massage 💆‍♀️",
     "1 movie night — your pick 🎬",
-    "Breakfast in bed 🥞",
-    "Aquarium date 🐠",
     "1 dessert run — any time, no questions asked 🍦",
-    "Karaoke night 🎤",
     "1 nap date 😴",
     "Sunset beach walk 🌅",
     "1 \"I do the dishes\" pass 🧽",
     "You win the next argument. Automatically. 🏆",
     "Matcha café date 🍵"
   ];
+  const HIGH_PRIZES = [
+    "Uni date 🦔",
+    "Sushi date 🍣",
+    "Ramen DANBO date 🍜",
+    "Ramen DANBO — extra chashu, on me 🍜🥩",
+    "Late-night Ramen DANBO run 🍜🌙",
+    "1 roadtrip? 🛣️",
+    "1 massage 💆‍♀️",
+    "Breakfast in bed 🥞",
+    "Aquarium date 🐠",
+    "Karaoke night 🎤"
+  ];
+  const PRIZES = [...SIMPLE_PRIZES, ...HIGH_PRIZES];  /* gacha gold capsules draw from everything */
   const PKEY = "gachaPrizesWon";
   const $ = id => document.getElementById(id);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1298,8 +1398,13 @@
   /* ---- daily prize limit: 1 prize per game per day ---- */
   const DKEY = "gachaDailyPrizes";
   function todayStr(){
-    const d = new Date();
-    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    /* daily limits roll over at midnight Pacific Time (PST/PDT) */
+    try {
+      return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date());
+    } catch(e){
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    }
   }
   let daily = { date: todayStr(), games: {} };
   try {
@@ -1460,8 +1565,20 @@
     if (p.includes("DANBO")) danboBurst();
     return p;
   }
-  function awardPrize(){
-    showCoupon("🎉 PRIZE GET! 🎉", "This coupon entitles Meagan to:", pickPrize(PRIZES));
+  const GAME_TIER = {
+    shells:"easy", ducks:"easy", memory:"easy", bubbles:"easy",
+    tango:"hard", calc:"hard", flappy:"hard"
+  };
+  function awardPrize(tier){
+    if (tier === "hard"){
+      if (Math.random() < 0.12){
+        showCoupon("🌈 JACKPOT!! 🌈", "High-stakes bonus! Meagan wins:", pickPrize(JACKPOTS));
+      } else {
+        showCoupon("💎 BIG PRIZE GET! 💎", "High-stakes coupon — Meagan gets:", pickPrize(HIGH_PRIZES));
+      }
+      return;
+    }
+    showCoupon("🎉 PRIZE GET! 🎉", "This coupon entitles Meagan to:", pickPrize(SIMPLE_PRIZES));
   }
   window.capsulePrize = function(tier){
     if (tier === 2){
@@ -1499,7 +1616,7 @@
     if (didWin){
       if (canWinToday(currentGame)){
         gMsg.textContent = winMsg;
-        later(()=>{ closeGame(); markWonToday(currentGame); awardPrize(); }, reduce ? 100 : 900);
+        later(()=>{ closeGame(); markWonToday(currentGame); awardPrize(GAME_TIER[currentGame] || "easy"); }, reduce ? 100 : 900);
       } else {
         gMsg.textContent = winMsg + " Today's prize for this game is already claimed — また明日 🌙";
         showStart("あそぶだけ · Play for fun", retry);
@@ -1516,6 +1633,58 @@
     gArea.appendChild(s);
     later(()=> s.remove(), 650);
   }
+
+  /* ---- tiny synth: bubble pops, chimes, buzzes (created on first tap) ---- */
+  let AC = null;
+  function audio(){
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === "suspended") AC.resume();
+    return AC;
+  }
+  function popSound(bright){
+    try{
+      const a = audio(), t = a.currentTime;
+      /* the "pop" body: quick pitch-dropping blip */
+      const o = a.createOscillator(), g = a.createGain();
+      const f = (bright ? 640 : 320) + Math.random()*240;
+      o.type = "sine";
+      o.frequency.setValueAtTime(f, t);
+      o.frequency.exponentialRampToValueAtTime(f * 0.3, t + 0.085);
+      g.gain.setValueAtTime(0.4, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+      o.connect(g); g.connect(a.destination);
+      o.start(t); o.stop(t + 0.1);
+      /* the "skin snap": tiny filtered noise click */
+      const len = Math.max(1, Math.floor(a.sampleRate * 0.03));
+      const buf = a.createBuffer(1, len, a.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random()*2 - 1) * (1 - i/len);
+      const n = a.createBufferSource(); n.buffer = buf;
+      const bp = a.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 1500 + Math.random()*1400; bp.Q.value = 0.7;
+      const ng = a.createGain();
+      ng.gain.setValueAtTime(0.35, t);
+      ng.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+      n.connect(bp); bp.connect(ng); ng.connect(a.destination);
+      n.start(t);
+    }catch(e){}
+  }
+  function toneSound(f0, f1, dur, vol, type){
+    try{
+      const a = audio(), t = a.currentTime;
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = type || "sine";
+      o.frequency.setValueAtTime(f0, t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t + dur);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g); g.connect(a.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    }catch(e){}
+  }
+  const dingSound = ()=> toneSound(760, 1180, .16, .28, "triangle");
+  const buzzSound = ()=> toneSound(220, 90, .25, .28, "sawtooth");
+  const flapSound = ()=> toneSound(500, 780, .07, .16, "triangle");
 
   /* ============ GAME 1: SHELL CATCH ============ */
   function shellGame(){
@@ -1768,8 +1937,306 @@
     update();
   }
 
+  /* ============ GAME 5: BUBBLE WRAP ============ */
+  function bubbleGame(){
+    gTitle.textContent = "🫧 Bubble Wrap";
+    gMsg.textContent = "Pop the wrap (swiping works!) — find all 8 hiding fish 🐟 · puffers 🐡 cost 3s · 🔊 sound on!";
+    showStart("スタート · Start", runBubbles);
+  }
+  function runBubbles(){
+    const COLS = 5, ROWS = 8, TOTAL = COLS*ROWS, FISH = 8, PUFF = 3;
+    let found = 0, time = 22, over = false;
+    const under = Array(TOTAL).fill("");
+    const spots = [...Array(TOTAL).keys()].sort(()=> Math.random() - .5);
+    spots.slice(0, FISH).forEach(i => under[i] = "🐟");
+    spots.slice(FISH, FISH + PUFF).forEach(i => under[i] = "🐡");
+    gStat.textContent = `🐟 0/${FISH} · ⏱ ${time}s`;
+    const grid = document.createElement("div");
+    grid.className = "bw-grid";
+    let swiping = false;
+    grid.addEventListener("pointerdown", ()=> swiping = true);
+    ["pointerup","pointercancel","pointerleave"].forEach(ev =>
+      grid.addEventListener(ev, ()=> swiping = false));
+    function lose(msg){
+      over = true;
+      endGame("", msg, false, runBubbles);
+    }
+    function popIt(b, i, x, y){
+      if (over || b.classList.contains("popped")) return;
+      b.classList.add("popped");
+      popSound(under[i] === "🐟");
+      try{ navigator.vibrate && navigator.vibrate(8); }catch(e){}
+      const r = gArea.getBoundingClientRect();
+      if (under[i] === "🐟"){
+        found++;
+        popScore(x - r.left, y - r.top, "+1 🐟");
+        gStat.textContent = `🐟 ${found}/${FISH} · ⏱ ${time}s`;
+        if (found >= FISH){ over = true; endGame("SO satisfying!! All fish found 🎉🐟", "", true, runBubbles); }
+      } else if (under[i] === "🐡"){
+        time = Math.max(0, time - 3);
+        buzzSound();
+        popScore(x - r.left, y - r.top, "−3s 🐡");
+        gStat.textContent = `🐟 ${found}/${FISH} · ⏱ ${time}s`;
+        if (time <= 0) lose("The puffer popped your chances! 🐡");
+      } else {
+        popScore(x - r.left, y - r.top, "pop!");
+      }
+    }
+    for (let i = 0; i < TOTAL; i++){
+      const b = document.createElement("button");
+      b.className = "bw-bub";
+      const u = document.createElement("span");
+      u.className = "bw-under";
+      u.textContent = under[i];
+      b.appendChild(u);
+      b.addEventListener("pointerdown", e=>{
+        try{ b.releasePointerCapture(e.pointerId); }catch(err){}
+        popIt(b, i, e.clientX, e.clientY);
+      });
+      b.addEventListener("pointerenter", e=>{ if (swiping) popIt(b, i, e.clientX, e.clientY); });
+      grid.appendChild(b);
+    }
+    gArea.appendChild(grid);
+    every(()=>{
+      if (over) return;
+      time--;
+      gStat.textContent = `🐟 ${found}/${FISH} · ⏱ ${time}s`;
+      if (time <= 0) lose("Time's up! The fish swam away 🫧");
+    }, 1000);
+  }
+
+  /* ============ GAME 6: CALCULUS COVE ============ */
+  const SUP = { "-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹" };
+  function pow(n){ return String(n).split("").map(c => SUP[c] || "").join(""); }
+  function xTerm(a, n){
+    if (n === 0) return String(a);
+    const xs = "x" + (n === 1 ? "" : pow(n));
+    if (a === 1) return xs;
+    if (a === -1) return "−" + xs;
+    return a + xs;
+  }
+  function rnd(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+  function calcQuestion(){
+    const kind = rnd(0, 6);
+    let q, ok, wrong;
+    if (kind === 0){                                   /* power rule */
+      const a = rnd(2,5), n = rnd(2,5);
+      q = "d/dx  " + xTerm(a,n) + "  = ?";
+      ok = xTerm(a*n, n-1);
+      wrong = [xTerm(a, n-1), xTerm(a*n, n), xTerm(a*(n-1), n-1)];
+    } else if (kind === 1){                            /* derivative at a point */
+      const n = rnd(2,3), k = rnd(2,4);
+      q = "f(x) = " + xTerm(1,n) + " ,   f′(" + k + ") = ?";
+      ok = String(n * Math.pow(k, n-1));
+      wrong = [String(Math.pow(k,n)), String(n*Math.pow(k,n)), String(Math.pow(k,n-1))];
+    } else if (kind === 2){                            /* antiderivative */
+      const n = rnd(1,3), m = rnd(1,3), a = m*(n+1);
+      q = "∫ " + xTerm(a,n) + " dx  = ?";
+      ok = xTerm(m, n+1) + " + C";
+      wrong = [xTerm(a, n+1) + " + C", xTerm(a*n, Math.max(0,n-1)) + " + C", xTerm(m, n) + " + C"];
+    } else if (kind === 3){                            /* limit at infinity */
+      const c = rnd(1,4), r = rnd(2,5), a = c*r, b = rnd(1,9), d = rnd(1,9);
+      q = "lim x→∞   (" + a + "x + " + b + ") ⁄ (" + c + "x + " + d + ")  = ?";
+      ok = String(r);
+      wrong = [String(a), String(c), "∞"];
+    } else if (kind === 4){                            /* small-angle limit */
+      const a = rnd(2,4);
+      q = "lim x→0   sin(" + a + "x) ⁄ x  = ?";
+      ok = String(a);
+      wrong = ["0", "1", "∞"];
+    } else if (kind === 5){                            /* definite integral */
+      const b = rnd(2,5);
+      q = "∫₀" + pow(b) + "  2x dx  = ?";
+      ok = String(b*b);
+      wrong = [String(2*b), String(b), String(b*b*b)];
+    } else {                                           /* classic table */
+      const table = [
+        ["d/dx  sin x  = ?", "cos x", ["−cos x","−sin x","tan x"]],
+        ["d/dx  cos x  = ?", "−sin x", ["sin x","−cos x","sec x"]],
+        ["d/dx  eˣ  = ?", "eˣ", ["x·eˣ⁻¹","eˣ⁻¹","ln x"]],
+        ["d/dx  ln x  = ?", "1/x", ["ln x","x","eˣ"]],
+        ["∫ cos x dx  = ?", "sin x + C", ["−sin x + C","cos x + C","tan x + C"]]
+      ];
+      const t = table[rnd(0, table.length - 1)];
+      q = t[0]; ok = t[1]; wrong = t[2];
+    }
+    wrong = [...new Set(wrong.filter(w => w !== ok))];
+    let padTry = 2;
+    while (wrong.length < 3){
+      const cand = /^-?\d+$/.test(ok) ? String(Number(ok) + padTry) : ok + " ";
+      if (cand !== ok && !wrong.includes(cand)) wrong.push(cand);
+      padTry++;
+    }
+    const opts = [ok, ...wrong.slice(0, 3)].sort(()=> Math.random() - .5);
+    return { q, ok, opts };
+  }
+  function calcGame(){
+    gTitle.textContent = "🧮 Calculus Cove";
+    gMsg.textContent = "8 correct answers wins — derivatives, integrals & limits. You have 3 lives ❤️";
+    showStart("スタート · Start", runCalc);
+  }
+  function runCalc(){
+    const GOAL = 8;
+    let score = 0, lives = 3, lock = false;
+    const wrap = document.createElement("div");
+    wrap.className = "calc-wrap";
+    const qEl = document.createElement("div");
+    qEl.className = "calc-q";
+    const grid = document.createElement("div");
+    grid.className = "calc-grid";
+    wrap.appendChild(qEl); wrap.appendChild(grid);
+    gArea.appendChild(wrap);
+    function stat(){ gStat.textContent = `✓ ${score}/${GOAL} · ${"❤️".repeat(lives) || "💔"}`; }
+    function next(){
+      lock = false;
+      grid.innerHTML = "";
+      const { q, ok, opts } = calcQuestion();
+      qEl.textContent = q;
+      opts.forEach(o=>{
+        const b = document.createElement("button");
+        b.className = "calc-opt";
+        b.textContent = o;
+        b.addEventListener("click", ()=>{
+          if (lock) return;
+          lock = true;
+          [...grid.children].forEach(x => x.disabled = true);
+          if (o === ok){
+            b.classList.add("right");
+            dingSound();
+            score++; stat();
+            if (score >= GOAL){ later(()=> endGame("Math genius!! 🎉🧠∫", "", true, runCalc), 500); return; }
+            later(next, 550);
+          } else {
+            b.classList.add("wrongPick");
+            const rightBtn = [...grid.children].find(x => x.textContent === ok);
+            if (rightBtn) rightBtn.classList.add("right");
+            buzzSound();
+            lives--; stat();
+            if (lives <= 0){ later(()=> endGame("", "Out of lives! The math got spicy 🌶️📐", false, runCalc), 750); return; }
+            later(next, 950);
+          }
+        });
+        grid.appendChild(b);
+      });
+    }
+    stat(); next();
+  }
+
+  /* ============ GAME 7: FLAPPY GOOSE ============ */
+  function flappyGame(){
+    gTitle.textContent = "🪿 Flappy Goose";
+    gMsg.textContent = "Tap to flap! Slip through the duck towers & snack on fish — reach 10 to win";
+    showStart("スタート · Start", runFlappy);
+  }
+  function runFlappy(){
+    const GOAL = 10;
+    const field = document.createElement("div");
+    field.className = "fg-field";
+    gArea.appendChild(field);
+    const W = field.clientWidth || gArea.clientWidth || 408;
+    const H = field.clientHeight || gArea.clientHeight || 400;
+    const goose = document.createElement("div");
+    goose.className = "fg-goose";
+    goose.textContent = "🪿";
+    field.appendChild(goose);
+    const GX = Math.round(W * 0.24), SIZE = 30;
+    const GRAV = 0.34, FLAP = -6.4, SPEED = 2.5, COLW = 48, GAP = 158;
+    let gy = H/2, vy = 0, score = 0, alive = true, started = false;
+    const cols = [];
+    gStat.textContent = `🐟 0/${GOAL}`;
+    field.addEventListener("pointerdown", ()=>{
+      if (!alive) return;
+      started = true;
+      vy = FLAP;
+      flapSound();
+    });
+    function bump(){
+      score++;
+      gStat.textContent = `🐟 ${score}/${GOAL}`;
+      if (score >= GOAL && alive){
+        alive = false;
+        endGame("HONK HONK! Goose supreme! 🎉🪿", "", true, runFlappy);
+        return true;
+      }
+      return false;
+    }
+    function die(){
+      if (!alive) return;
+      alive = false;
+      buzzSound();
+      goose.style.filter = "grayscale(1)";
+      endGame("", "Honk!! 🪿💥 The ducks got you — try again!", false, runFlappy);
+    }
+    function spawnCol(){
+      const margin = 34;
+      const gapY = margin + Math.random() * Math.max(20, H - GAP - margin*2);
+      const col = document.createElement("div");
+      col.className = "fg-col";
+      col.style.width = COLW + "px";
+      const top = document.createElement("div");
+      top.className = "fg-tube";
+      top.style.top = "-4px";
+      top.style.height = (gapY + 4) + "px";
+      top.textContent = "🦆\n".repeat(Math.max(1, Math.ceil(gapY/24) + 1));
+      const bot = document.createElement("div");
+      bot.className = "fg-tube";
+      bot.style.top = (gapY + GAP) + "px";
+      bot.style.bottom = "-4px";
+      bot.textContent = "🦆\n".repeat(Math.max(1, Math.ceil((H - gapY - GAP)/24) + 1));
+      col.appendChild(top); col.appendChild(bot);
+      field.appendChild(col);
+      const c = { x: W + 10, gapY, el: col, passed: false, fish: null, fishY: gapY + GAP/2 };
+      if (Math.random() < 0.65){
+        const f = document.createElement("div");
+        f.className = "fg-fish";
+        f.textContent = "🐟";
+        field.appendChild(f);
+        c.fish = f;
+      }
+      col.style.transform = `translateX(${c.x}px)`;
+      cols.push(c);
+    }
+    every(()=>{
+      if (!alive || !gArea.contains(field)) return;
+      if (started){ vy += GRAV; gy += vy; }
+      else { gy = H/2 + Math.sin(Date.now()/300) * 8; }         /* idle bob */
+      if (gy < 4){ gy = 4; vy = 0; }
+      if (started && gy > H - SIZE - 2){ die(); return; }
+      const tilt = -Math.max(-25, Math.min(55, vy * 4.5));
+      goose.style.transform = `translate(${GX}px, ${gy}px) scaleX(-1) rotate(${tilt}deg)`;
+      if (!started) return;
+      for (let i = cols.length - 1; i >= 0; i--){
+        const c = cols[i];
+        c.x -= SPEED;
+        c.el.style.transform = `translateX(${c.x}px)`;
+        if (c.fish){
+          c.fish.style.transform = `translate(${c.x + COLW/2 - 12}px, ${c.fishY - 12}px)`;
+          if (Math.abs(c.x + COLW/2 - (GX + SIZE/2)) < 26 && Math.abs(c.fishY - (gy + SIZE/2)) < 30){
+            c.fish.remove(); c.fish = null;
+            dingSound();
+            popScore(GX + 44, gy, "+1 🐟");
+            if (bump()) return;
+          }
+        }
+        const gl = GX + 5, gr = GX + SIZE - 5, gt = gy + 5, gb = gy + SIZE - 5;
+        if (gr > c.x && gl < c.x + COLW && (gt < c.gapY || gb > c.gapY + GAP)){ die(); return; }
+        if (!c.passed && c.x + COLW < GX){
+          c.passed = true;
+          toneSound(620, 900, .09, .14, "sine");
+          if (bump()) return;
+        }
+        if (c.x < -COLW - 20){
+          c.el.remove(); if (c.fish) c.fish.remove();
+          cols.splice(i, 1);
+        }
+      }
+    }, 16);
+    every(()=>{ if (alive && started) spawnCol(); }, 1750);
+  }
+
   /* ---- launch buttons ---- */
-  const launchers = { shells: shellGame, ducks: duckGame, memory: memoryGame, tango: tangoGame };
+  const launchers = { shells: shellGame, ducks: duckGame, memory: memoryGame,
+                      tango: tangoGame, bubbles: bubbleGame, calc: calcGame, flappy: flappyGame };
   document.querySelectorAll(".game-card").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       currentGame = btn.dataset.game;
@@ -1778,6 +2245,7 @@
     });
   });
   updateGameCards();
+  setInterval(()=>{ try{ updateGameCards(); }catch(e){} }, 60000);
 })();
 </script>
 <script>
