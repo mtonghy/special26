@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>おもいでガチャ — Memory Gacha</title>
+<title>Our Lovely Memories Gatcha</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -313,18 +313,33 @@
   .gc-emoji{ font-size:34px; }
   .gc-name{ font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:16px; }
   .gc-desc{ font-size:12.5px; font-weight:500; color:var(--sea); line-height:1.35; }
+  .gc-done{
+    display:none; font-size:11px; font-weight:700; color:var(--coral-d);
+    background:#FFF1EA; border:1.5px dashed var(--coral); border-radius:999px;
+    padding:3px 10px; margin-top:4px;
+  }
+  .game-card.prize-done .gc-done{ display:inline-block; }
 
   .wallet{
     margin-top:20px; background:rgba(255,255,255,.7); border:2px dashed rgba(22,87,122,.3);
     border-radius:20px; padding:14px 18px 16px; text-align:left;
   }
   .wallet h3{ font-family:'Zen Maru Gothic',sans-serif; font-size:16px; color:var(--ink); text-align:center; }
-  .wallet ul{ list-style:none; margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .wallet ul{
+    list-style:none; margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    max-height:190px; overflow-y:auto; overscroll-behavior:contain; padding:2px 4px;
+  }
   .wallet li{
     font-weight:700; font-size:13px; color:var(--ink);
     background:linear-gradient(135deg,#FFF6E6,#FFE9DC); border:1.5px solid var(--coral);
     border-radius:999px; padding:6px 14px;
   }
+  .wallet li .qty{
+    display:inline-block; margin-left:7px; font-size:11px; font-weight:900;
+    color:#fff; background:var(--coral); border-radius:999px; padding:1px 7px;
+    vertical-align:1px;
+  }
+  .wallet li.used .qty{ background:rgba(22,87,122,.35); text-decoration:none; }
   .wallet li.empty{ background:none; border:none; color:var(--sea); font-weight:500; }
   .wallet li.active{ cursor:pointer; transition:transform .15s, box-shadow .15s; }
   .wallet li.active:hover{ transform:translateY(-2px); box-shadow:0 6px 14px rgba(224,106,75,.28); }
@@ -437,6 +452,35 @@
   .mem-card.flip::after{ content:""; }
   .mem-card.matched{ background:var(--foam); opacity:.85; cursor:default; }
   .mem-card:focus-visible{ outline:3px solid var(--coral); }
+
+  /* ---- heart tango ---- */
+  .tango-wrap{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:12px;
+  }
+  .tango-grid{
+    display:grid; grid-template-columns:repeat(6,1fr); grid-template-rows:repeat(6,1fr);
+    gap:5px; width:min(100%, 330px, 56vh); aspect-ratio:1;
+  }
+  .tango-cell{
+    position:relative; cursor:pointer; border-radius:10px; padding:0; line-height:1;
+    background:rgba(255,255,255,.88); border:2px solid rgba(22,87,122,.18);
+    font-size:min(6.4vw,26px); display:flex; align-items:center; justify-content:center;
+    transition:background .15s, border-color .15s, transform .1s;
+  }
+  .tango-cell:active{ transform:scale(.94); }
+  .tango-cell.lockd{ background:var(--foam); border-color:rgba(22,87,122,.32); cursor:default; }
+  .tango-cell.lockd:active{ transform:none; }
+  .tango-cell.bad{ animation:cellBad .4s ease; background:#FFE3DA; border-color:var(--coral-d); }
+  @keyframes cellBad{ 30%{ transform:translateX(-3px);} 60%{ transform:translateX(3px);} }
+  .tango-cell:focus-visible{ outline:3px solid var(--coral); outline-offset:1px; }
+  .tango-sign{
+    position:absolute; z-index:2; width:15px; height:15px; border-radius:50%;
+    background:#fff; border:1.5px solid rgba(22,87,122,.45); color:var(--sea);
+    font-size:10px; font-weight:900; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; line-height:1;
+  }
+  .tango-sign.h{ right:-10px; top:50%; transform:translateY(-50%); }
+  .tango-sign.v{ bottom:-10px; left:50%; transform:translateX(-50%); }
 
   /* ---- prize coupon ---- */
   .prize-layer{ z-index:30; }
@@ -586,7 +630,7 @@
 
     <div class="lock-card" id="lockCard">
       <span class="lock-emoji">💎🔒💎</span>
-      <h2>ひみつのページ！</h2>
+      <h2>Meagan's Special Day!</h2>
       <div style="font-weight:700; color:#0B7F7A; font-size:14px;">This page is a secret… prove it's you!</div>
       <div class="hint">🎂 Hint: your age this year</div>
       <input type="password" id="pwInput" inputmode="numeric" autocomplete="off"
@@ -600,7 +644,7 @@
 
   <header>
     <div class="eyebrow">🎂 Meagan's 26th Birthday! 🌺</div>
-    <h1>おもいで<span class="accent">ガチャ</span></h1>
+    <h1>Our Lovely Memories <span class="accent">Gatcha</span></h1>
     <div class="sub">Turn the crank. The sea gives back memories — and hides a little treasure ✨</div>
   </header>
 
@@ -706,22 +750,31 @@
   <!-- ============ MINI GAMES ============ -->
   <section class="games">
     <h2 class="games-title">ミニゲーム · Bonus Games</h2>
-    <p class="games-sub">Win a game, win a prize 🎟️</p>
+    <p class="games-sub">Win a game, win a prize 🎟️ · 1 prize per game per day</p>
     <div class="game-grid">
       <button class="game-card" data-game="shells">
         <span class="gc-emoji">🐚</span>
         <span class="gc-name">Shell Catch</span>
         <span class="gc-desc">Tap 10 falling shells before time runs out</span>
+        <span class="gc-done">🎟️ Prize claimed today</span>
       </button>
       <button class="game-card" data-game="ducks">
         <span class="gc-emoji">🦆</span>
         <span class="gc-name">Duck Splash</span>
         <span class="gc-desc">Bop 10 ducks as they pop out of the waves</span>
+        <span class="gc-done">🎟️ Prize claimed today</span>
       </button>
       <button class="game-card" data-game="memory">
         <span class="gc-emoji">🐠</span>
         <span class="gc-name">Memory Match</span>
         <span class="gc-desc">Find all 8 pairs hiding under the sea</span>
+        <span class="gc-done">🎟️ Prize claimed today</span>
+      </button>
+      <button class="game-card" data-game="tango">
+        <span class="gc-emoji">💞</span>
+        <span class="gc-name">Heart Tango</span>
+        <span class="gc-desc">Balance 🩵 & 🧡 — never three in a row</span>
+        <span class="gc-done">🎟️ Prize claimed today</span>
       </button>
     </div>
     <div class="wallet">
@@ -1136,7 +1189,7 @@
     "1 picnic date 🧺",
     "1 kiss 💋",
     "1 kiss + hug 💋🤗",
-    "Uni date 🎓",
+    "Uni date 🦔",
     "Sushi date 🍣",
     "Ramen DANBO date 🍜",
     "Ramen DANBO — extra chashu, on me 🍜🥩",
@@ -1242,31 +1295,70 @@
   try { used = JSON.parse(localStorage.getItem(RKEY)) || []; } catch(e){}
   function saveUsed(){ try{ localStorage.setItem(RKEY, JSON.stringify(used)); }catch(e){} }
 
+  /* ---- daily prize limit: 1 prize per game per day ---- */
+  const DKEY = "gachaDailyPrizes";
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  let daily = { date: todayStr(), games: {} };
+  try {
+    const s = JSON.parse(localStorage.getItem(DKEY));
+    if (s && s.date === todayStr() && s.games) daily = s;
+  } catch(e){}
+  function saveDaily(){ try{ localStorage.setItem(DKEY, JSON.stringify(daily)); }catch(e){} }
+  function rollover(){
+    if (daily.date !== todayStr()){ daily = { date: todayStr(), games: {} }; saveDaily(); }
+  }
+  function canWinToday(game){ rollover(); return !daily.games[game]; }
+  function markWonToday(game){ rollover(); daily.games[game] = true; saveDaily(); updateGameCards(); }
+  function updateGameCards(){
+    document.querySelectorAll(".game-card").forEach(btn=>{
+      btn.classList.toggle("prize-done", !canWinToday(btn.dataset.game));
+    });
+  }
+
   const walletList = $("walletList");
   function renderWallet(){
     walletList.innerHTML = "";
-    const active = won.filter(p => !used.includes(p));
-    const spent  = won.filter(p =>  used.includes(p));
-    $("walletHint").style.display = active.length ? "block" : "none";
+    /* pair won/used as multisets → per-prize active & spent counts */
+    const usedPool = [...used];
+    const active = new Map(), spent = new Map();
+    won.forEach(p=>{
+      const i = usedPool.indexOf(p);
+      if (i > -1){ usedPool.splice(i,1); spent.set(p, (spent.get(p)||0)+1); }
+      else active.set(p, (active.get(p)||0)+1);
+    });
+    $("walletHint").style.display = active.size ? "block" : "none";
     if (!won.length){
       walletList.innerHTML = '<li class="empty">No prizes yet… go win some!</li>';
       return;
     }
-    active.forEach(p=>{
+    active.forEach((n,p)=>{
       const li = document.createElement("li");
       li.className = "active";
       li.textContent = p;
+      if (n > 1){
+        const q = document.createElement("span");
+        q.className = "qty"; q.textContent = "×" + n;
+        li.appendChild(q);
+      }
       li.setAttribute("role","button");
       li.setAttribute("tabindex","0");
-      li.setAttribute("aria-label","Redeem: " + p);
+      li.setAttribute("aria-label","Redeem: " + p + (n > 1 ? " (you have " + n + ")" : ""));
       li.addEventListener("click", ()=> openRedeem(p));
       li.addEventListener("keydown", e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); openRedeem(p); } });
       walletList.appendChild(li);
     });
-    spent.forEach(p=>{
+    spent.forEach((n,p)=>{
       const li = document.createElement("li");
       li.className = "used";
       li.textContent = "✔ " + p;
+      if (n > 1){
+        const q = document.createElement("span");
+        q.className = "qty"; q.textContent = "×" + n;
+        li.appendChild(q);
+      }
       walletList.appendChild(li);
     });
   }
@@ -1315,7 +1407,7 @@
   }
   function markUsed(){
     if (!redeeming) return;
-    if (!used.includes(redeeming)){ used.push(redeeming); saveUsed(); }
+    used.push(redeeming); saveUsed();
     renderWallet();
     if (redeeming.includes("DANBO")) danboBurst(); else heartBurst();
     closeRedeem();
@@ -1361,31 +1453,21 @@
     prizeOv.classList.add("show");
   }
   function pickPrize(pool){
-    const remaining = pool.filter(p => !won.includes(p));
-    if (!remaining.length) return null;
-    const p = remaining[Math.floor(Math.random()*remaining.length)];
+    const fresh = pool.filter(p => !won.includes(p));   /* variety first… */
+    const src = fresh.length ? fresh : pool;            /* …then duplicates stack ×N */
+    const p = src[Math.floor(Math.random()*src.length)];
     won.push(p); saveWon(); renderWallet();
     if (p.includes("DANBO")) danboBurst();
     return p;
   }
-  function champion(){
-    showCoupon("💎 CHAMPION 💎", "You've already won…",
-      "every single prize! (and Matthew's whole heart)");
-  }
   function awardPrize(){
-    const p = pickPrize(PRIZES);
-    if (p) showCoupon("🎉 PRIZE GET! 🎉", "This coupon entitles Meagan to:", p);
-    else champion();
+    showCoupon("🎉 PRIZE GET! 🎉", "This coupon entitles Meagan to:", pickPrize(PRIZES));
   }
   window.capsulePrize = function(tier){
     if (tier === 2){
-      const p = pickPrize(JACKPOTS) || pickPrize(PRIZES);
-      if (p) showCoupon("🌈 ULTRA RARE!! 🌈", "The jackpot capsule! Meagan wins:", p);
-      else champion();
+      showCoupon("🌈 ULTRA RARE!! 🌈", "The jackpot capsule! Meagan wins:", pickPrize(JACKPOTS));
     } else {
-      const p = pickPrize(PRIZES);
-      if (p) showCoupon("✨ GOLD CAPSULE! ✨", "A bonus prize was hiding inside:", p);
-      else champion();
+      showCoupon("✨ GOLD CAPSULE! ✨", "A bonus prize was hiding inside:", pickPrize(PRIZES));
     }
   };
   $("couponBtn").addEventListener("click", ()=> prizeOv.classList.remove("show"));
@@ -1393,7 +1475,7 @@
   /* ---- game overlay plumbing ---- */
   const gOv = $("gameOverlay"), gArea = $("gArea"),
         gTitle = $("gTitle"), gStat = $("gStat"), gMsg = $("gMsg");
-  let timers = [];
+  let timers = [], currentGame = null;
   function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
   function every(fn, ms){ timers.push(setInterval(fn, ms)); }
   function clearTimers(){ timers.forEach(t=>{ clearTimeout(t); clearInterval(t); }); timers = []; }
@@ -1414,10 +1496,16 @@
   }
   function endGame(winMsg, loseMsg, didWin, retry){
     clearTimers();
-    gMsg.textContent = didWin ? winMsg : loseMsg;
     if (didWin){
-      later(()=>{ closeGame(); awardPrize(); }, reduce ? 100 : 900);
+      if (canWinToday(currentGame)){
+        gMsg.textContent = winMsg;
+        later(()=>{ closeGame(); markWonToday(currentGame); awardPrize(); }, reduce ? 100 : 900);
+      } else {
+        gMsg.textContent = winMsg + " Today's prize for this game is already claimed — また明日 🌙";
+        showStart("あそぶだけ · Play for fun", retry);
+      }
     } else {
+      gMsg.textContent = loseMsg;
       showStart("もういちど · Retry", retry);
     }
   }
@@ -1562,14 +1650,134 @@
     gArea.appendChild(grid);
   }
 
+  /* ============ GAME 4: HEART TANGO ============ */
+  function tangoGame(){
+    gTitle.textContent = "💞 Heart Tango";
+    gMsg.textContent = "3 🩵 + 3 🧡 in every row & column · never 3 in a row · = same, × different";
+    showStart("スタート · Start", runTango);
+  }
+  function runTango(){
+    const N = 6, HEARTS = ["🩵","🧡"];
+
+    /* build a full valid solution by backtracking */
+    const sol = Array(N*N).fill(-1);
+    function fits(i, v){
+      const r = Math.floor(i/N), c = i%N;
+      if (c >= 2 && sol[i-1] === v && sol[i-2] === v) return false;
+      if (r >= 2 && sol[i-N] === v && sol[i-2*N] === v) return false;
+      let rc = 0; for (let x = r*N; x < i; x++) if (sol[x] === v) rc++;
+      if (rc >= N/2) return false;
+      let cc = 0; for (let x = c; x < i; x += N) if (sol[x] === v) cc++;
+      if (cc >= N/2) return false;
+      return true;
+    }
+    (function fill(i){
+      if (i === N*N) return true;
+      const order = Math.random() < .5 ? [0,1] : [1,0];
+      for (const v of order){
+        if (fits(i, v)){ sol[i] = v; if (fill(i+1)) return true; sol[i] = -1; }
+      }
+      return false;
+    })(0);
+
+    /* clues + constraint signs carved from the solution */
+    const shuffled = [...Array(N*N).keys()].sort(()=> Math.random() - .5);
+    const clues = new Set(shuffled.slice(0, 11));
+    const pairs = [];
+    for (let i = 0; i < N*N; i++){
+      if (i % N < N-1) pairs.push([i, i+1, "h"]);
+      if (i < N*(N-1)) pairs.push([i, i+N, "v"]);
+    }
+    pairs.sort(()=> Math.random() - .5);
+    const signs = pairs.slice(0, 9);
+
+    const board = sol.map((v,i)=> clues.has(i) ? v : -1);
+    const wrap = document.createElement("div");
+    wrap.className = "tango-wrap";
+    const grid = document.createElement("div");
+    grid.className = "tango-grid";
+    const cellEls = [];
+    board.forEach((v,i)=>{
+      const b = document.createElement("button");
+      b.className = "tango-cell" + (clues.has(i) ? " lockd" : "");
+      const face = document.createElement("span");
+      face.className = "tango-face";
+      face.textContent = v === -1 ? "" : HEARTS[v];
+      b.appendChild(face);
+      b.setAttribute("aria-label", "row " + (Math.floor(i/N)+1) + " column " + (i%N+1));
+      grid.appendChild(b); cellEls.push(b);
+      if (clues.has(i)) return;
+      b.addEventListener("click", ()=>{
+        board[i] = board[i] === -1 ? 0 : board[i] === 0 ? 1 : -1;
+        face.textContent = board[i] === -1 ? "" : HEARTS[board[i]];
+        update();
+      });
+    });
+    signs.forEach(([a,b2,dir])=>{
+      const s = document.createElement("span");
+      s.className = "tango-sign " + dir;
+      s.textContent = sol[a] === sol[b2] ? "=" : "×";
+      cellEls[a].appendChild(s);
+    });
+    wrap.appendChild(grid);
+    gArea.appendChild(wrap);
+
+    function violations(){
+      const bad = new Set();
+      for (let r = 0; r < N; r++){
+        const row = board.slice(r*N, (r+1)*N);
+        for (let v = 0; v < 2; v++)
+          if (row.filter(x => x === v).length > N/2)
+            for (let c = 0; c < N; c++) bad.add(r*N + c);
+        for (let c = 0; c < N-2; c++){
+          const i = r*N + c;
+          if (board[i] !== -1 && board[i] === board[i+1] && board[i] === board[i+2]){
+            bad.add(i); bad.add(i+1); bad.add(i+2);
+          }
+        }
+      }
+      for (let c = 0; c < N; c++){
+        const col = []; for (let r = 0; r < N; r++) col.push(board[r*N + c]);
+        for (let v = 0; v < 2; v++)
+          if (col.filter(x => x === v).length > N/2)
+            for (let r = 0; r < N; r++) bad.add(r*N + c);
+        for (let r = 0; r < N-2; r++){
+          const i = r*N + c;
+          if (board[i] !== -1 && board[i] === board[i+N] && board[i] === board[i+2*N]){
+            bad.add(i); bad.add(i+N); bad.add(i+2*N);
+          }
+        }
+      }
+      signs.forEach(([a,b2])=>{
+        if (board[a] === -1 || board[b2] === -1) return;
+        if ((board[a] === board[b2]) !== (sol[a] === sol[b2])){ bad.add(a); bad.add(b2); }
+      });
+      return bad;
+    }
+    function update(){
+      const filled = board.filter(v => v !== -1).length;
+      gStat.textContent = filled + "/" + (N*N);
+      const bad = violations();
+      cellEls.forEach((el,i)=> el.classList.toggle("bad", bad.has(i)));
+      if (filled === N*N && !bad.size){
+        endGame("Perfect harmony! 🩵🧡🎉", "", true, runTango);
+      } else if (filled === N*N){
+        gMsg.textContent = "So close — the glowing cells need another look 👀";
+      }
+    }
+    update();
+  }
+
   /* ---- launch buttons ---- */
-  const launchers = { shells: shellGame, ducks: duckGame, memory: memoryGame };
+  const launchers = { shells: shellGame, ducks: duckGame, memory: memoryGame, tango: tangoGame };
   document.querySelectorAll(".game-card").forEach(btn=>{
     btn.addEventListener("click", ()=>{
+      currentGame = btn.dataset.game;
       gOv.classList.add("show");
       launchers[btn.dataset.game]();
     });
   });
+  updateGameCards();
 })();
 </script>
 <script>
