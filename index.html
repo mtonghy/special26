@@ -323,6 +323,24 @@
   }
   .game-card.prize-done .gc-done{ display:inline-block; }
 
+  /* ---- math-first daily gate ---- */
+  .game-card.locked{ opacity:.55; filter:saturate(.55); }
+  .game-card.locked:hover{ transform:none; border-color:rgba(22,87,122,.2); box-shadow:none; }
+  .game-card.locked::after{
+    content:"🔒 数学がさき · Math first!";
+    font-size:11px; font-weight:700; color:var(--sea);
+    background:#EAF4F7; border:1.5px dashed var(--sea); border-radius:999px;
+    padding:3px 10px; margin-top:4px;
+  }
+  .game-card.math-glow{
+    animation:mathGlow 1.2s ease 3;
+    border-color:var(--coral);
+  }
+  @keyframes mathGlow{
+    0%,100%{ box-shadow:0 0 0 0 rgba(255,139,106,0); }
+    50%{ box-shadow:0 0 0 8px rgba(255,139,106,.35); }
+  }
+
   .wallet{
     margin-top:20px; background:rgba(255,255,255,.7); border:2px dashed rgba(22,87,122,.3);
     border-radius:20px; padding:14px 18px 16px; text-align:left;
@@ -842,7 +860,7 @@
   <!-- ============ MINI GAMES ============ -->
   <section class="games">
     <h2 class="games-title">ミニゲーム · Bonus Games</h2>
-    <p class="games-sub">Win a game, win a prize 🎟️ — lose one, lose a prize 💔 · one win & one loss per game per day · resets at midnight PST</p>
+    <p class="games-sub">Win a game, win a prize 🎟️ — lose one, lose a prize 💔 · one win & one loss per game per day · resets at midnight PST<br>🧮 <b>Calculus Cove opens the arcade</b> — finish one round of it (win <i>or</i> lose) to unlock the other games each day!</p>
 
     <h3 class="tier-head">🌊 かんたん · Easy — simple prizes</h3>
     <div class="game-grid">
@@ -1017,6 +1035,22 @@
         <div class="coupon-label">You lost the game… one prize washes back into the sea. Choose which:</div>
         <ul class="forfeit-list" id="forfeitList"></ul>
         <div class="coupon-note">them's the stakes — win it back another day 🌊</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- math-first gate popup -->
+  <div class="goverlay prize-layer" id="mathGateOverlay" role="dialog" aria-modal="true" aria-label="Play the math game first">
+    <div class="coupon">
+      <div class="coupon-top">🧮 MATH COMES FIRST 🧮</div>
+      <div class="coupon-body">
+        <div class="coupon-label">The arcade is locked until brains warm up!</div>
+        <div class="coupon-prize">Finish one round of Calculus Cove — win <i>or</i> lose — and every other game unlocks for the day 🔓</div>
+        <div class="coupon-note">derivatives before ducks. them's the rules 📐🦆</div>
+      </div>
+      <div class="redeem-actions">
+        <button class="primary" id="mathGateGo">🧮 Take me to Calculus Cove</button>
+        <button class="ghost" id="mathGateLater">← Later (the ducks will wait)</button>
       </div>
     </div>
   </div>
@@ -1324,10 +1358,11 @@
     "Sunset beach walk 🌅",
     "1 \"I do the dishes\" pass 🧽",
     "You win the next argument. Automatically. 🏆",
-    "Matcha café date 🍵"
+    "Matcha café date 🍵",
+    "Cuddle sesh 🫂"
   ];
   const HIGH_PRIZES = [
-    "Uni date 🦔",
+    "Park walk date 🌳",
     "Sushi date 🍣",
     "Ramen DANBO date 🍜",
     "Ramen DANBO — extra chashu, on me 🍜🥩",
@@ -1437,22 +1472,31 @@
       return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
     }
   }
-  let daily = { date: todayStr(), games: {}, risked: {} };
+  let daily = { date: todayStr(), games: {}, risked: {}, mathDone: false };
   try {
     const s = JSON.parse(localStorage.getItem(DKEY));
-    if (s && s.date === todayStr() && s.games) daily = { date: s.date, games: s.games, risked: s.risked || {} };
+    if (s && s.date === todayStr() && s.games) daily = { date: s.date, games: s.games, risked: s.risked || {}, mathDone: !!s.mathDone };
   } catch(e){}
   function saveDaily(){ try{ localStorage.setItem(DKEY, JSON.stringify(daily)); }catch(e){} }
   function rollover(){
-    if (daily.date !== todayStr()){ daily = { date: todayStr(), games: {}, risked: {} }; saveDaily(); }
+    if (daily.date !== todayStr()){ daily = { date: todayStr(), games: {}, risked: {}, mathDone: false }; saveDaily(); }
   }
   function canWinToday(game){ rollover(); return !daily.games[game]; }
   function markWonToday(game){ rollover(); daily.games[game] = true; saveDaily(); updateGameCards(); }
   function hasRiskedToday(game){ rollover(); return !!daily.risked[game]; }
   function markRiskedToday(game){ rollover(); daily.risked[game] = true; saveDaily(); }
+  /* ---- math-first daily gate: Calculus Cove must be completed (win OR lose) before other games ---- */
+  const MATH_GAME = "calc";
+  function mathPlayedToday(){ rollover(); return !!daily.mathDone; }
+  function markMathPlayed(){
+    rollover();
+    if (!daily.mathDone){ daily.mathDone = true; saveDaily(); updateGameCards(); }
+  }
   function updateGameCards(){
+    const gateOn = !mathPlayedToday();
     document.querySelectorAll(".game-card").forEach(btn=>{
       btn.classList.toggle("prize-done", !canWinToday(btn.dataset.game));
+      btn.classList.toggle("locked", gateOn && btn.dataset.game !== MATH_GAME);
     });
   }
 
@@ -1645,7 +1689,7 @@
     "JACKPOT: a full surprise date day — I plan everything 💘",
     "JACKPOT: weekend roadtrip, you pick the destination 🛣️✨",
     "JACKPOT: unlimited Ramen DANBO day 🍜♾️",
-    "JACKPOT: spa + treat-yourself day, on me 💆‍♀️💅",
+    "JACKPOT: spa + treat-yourself day 💆‍♀️💅",
     "JACKPOT: rainy-day cuddle & chill — Uber + Netflix, all day long 🌧️🛋️🍿"
   ];
   const couponTop   = document.querySelector(".coupon-top");
@@ -1712,6 +1756,7 @@
   }
   function endGame(winMsg, loseMsg, didWin, retry){
     clearTimers();
+    if (currentGame === MATH_GAME) markMathPlayed();  /* finishing a round of Calculus Cove (win or lose) unlocks the arcade */
     if (didWin){
       if (canWinToday(currentGame)){
         gMsg.textContent = winMsg;
@@ -2427,11 +2472,35 @@
   /* ---- launch buttons ---- */
   const launchers = { shells: shellGame, ducks: duckGame, memory: memoryGame,
                       tango: tangoGame, bubbles: bubbleGame, calc: calcGame, flappy: flappyGame };
+  const mathGateOv = $("mathGateOverlay");
+  function launchGame(id){
+    currentGame = id;
+    gOv.classList.add("show");
+    launchers[id]();
+  }
+  function highlightMathCard(){
+    const card = document.querySelector('.game-card[data-game="' + MATH_GAME + '"]');
+    if (!card) return;
+    card.classList.remove("math-glow");
+    void card.offsetWidth;               /* restart the glow animation */
+    card.classList.add("math-glow");
+  }
+  $("mathGateGo").addEventListener("click", ()=>{
+    mathGateOv.classList.remove("show");
+    launchGame(MATH_GAME);
+  });
+  $("mathGateLater").addEventListener("click", ()=>{
+    mathGateOv.classList.remove("show");
+    highlightMathCard();
+  });
   document.querySelectorAll(".game-card").forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      currentGame = btn.dataset.game;
-      gOv.classList.add("show");
-      launchers[btn.dataset.game]();
+      /* daily gate: Calculus Cove must be completed once before anything else */
+      if (btn.dataset.game !== MATH_GAME && !mathPlayedToday()){
+        mathGateOv.classList.add("show");
+        return;
+      }
+      launchGame(btn.dataset.game);
     });
   });
   updateGameCards();
