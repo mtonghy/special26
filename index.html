@@ -341,6 +341,31 @@
     50%{ box-shadow:0 0 0 8px rgba(255,139,106,.35); }
   }
 
+  /* ---- gacha tokens ---- */
+  .tokens{
+    margin:10px auto 0; text-align:center; font-weight:700; color:var(--ink); font-size:15px;
+    background:linear-gradient(135deg,#FFF6E6,#FFE9C4); width:fit-content;
+    padding:6px 18px; border-radius:999px; border:1.5px solid rgba(216,154,30,.5);
+    box-shadow:0 2px 8px rgba(216,154,30,.25);
+  }
+  .tokens .n{ font-size:18px; color:#B8860B; }
+  .tokens.bump{ animation:tokenBump .5s ease; }
+  @keyframes tokenBump{ 30%{ transform:scale(1.15); } }
+  .card .token-result{
+    margin:8px 0 4px; font-family:'Zen Maru Gothic',sans-serif; font-weight:900;
+    font-size:17px; padding:6px 14px; border-radius:999px; display:inline-block;
+  }
+  .card .token-result.plus{ background:#E4F7E0; color:#2E7D32; }
+  .card .token-result.zero{ background:#EEF3F5; color:var(--sea); }
+  .card .token-result.minus{ background:#FDE6E1; color:#C0392B; }
+  .trade-btn{
+    display:block; margin:10px auto 0; cursor:pointer;
+    font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:13px;
+    color:#7A5300; background:linear-gradient(180deg,#FFE9A8,#F6C445);
+    border:none; padding:8px 18px; border-radius:999px; box-shadow:0 3px 0 #C9962A;
+  }
+  .trade-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 #C9962A; }
+  .coupon-top.trade-top{ background:linear-gradient(90deg,#C9962A,#F6C445,#C9962A); }
   .wallet{
     margin-top:20px; background:rgba(255,255,255,.7); border:2px dashed rgba(22,87,122,.3);
     border-radius:20px; padding:14px 18px 16px; text-align:left;
@@ -854,7 +879,8 @@
 
   <div class="press-hint" id="hint">コインをいれて · Ready when you are</div>
   <button class="turn" id="turnBtn">まわす · TURN</button>
-  <div class="counter"><span id="count">0</span> / <span id="total">30</span> memories found</div>
+  <div class="counter"><span id="count">0</span> / <span id="total">28</span> memories found</div>
+  <div class="tokens" id="tokenBox">🪙 <span class="n" id="tokenCount">0</span> gatcha tokens · 1 token per turn</div>
   <div class="shelf" id="shelf" aria-label="Collection progress"></div>
 
   <!-- ============ MINI GAMES ============ -->
@@ -915,6 +941,7 @@
       <h3>🎟️ Prize wallet</h3>
       <ul id="walletList"><li class="empty">No prizes yet… go win some!</li></ul>
       <div class="wallet-hint" id="walletHint" style="display:none;">Tap a prize to cash it in 💌</div>
+      <button class="trade-btn" id="tradeBtn" style="display:none;">🪙 Trade a prize for 2 gatcha tokens</button>
     </div>
   </section>
 
@@ -1039,6 +1066,19 @@
     </div>
   </div>
 
+  <!-- trade prize → tokens popup -->
+  <div class="goverlay prize-layer" id="tradeOverlay" role="dialog" aria-modal="true" aria-label="Trade a prize for tokens">
+    <div class="coupon">
+      <div class="coupon-top trade-top">🪙 TRADE FOR TOKENS 🪙</div>
+      <div class="coupon-body">
+        <div class="coupon-label">Give up one prize → get <b>2 gatcha tokens</b>. Choose which:</div>
+        <ul class="forfeit-list" id="tradeList"></ul>
+        <div class="coupon-note">tokens feed the machine · each turn costs 1 🪙</div>
+      </div>
+      <button class="coupon-btn" id="tradeCancel">← Keep my prizes</button>
+    </div>
+  </div>
+
   <!-- math-first gate popup -->
   <div class="goverlay prize-layer" id="mathGateOverlay" role="dialog" aria-modal="true" aria-label="Play the math game first">
     <div class="coupon">
@@ -1067,6 +1107,7 @@
         <div class="num" id="cardNum"></div>
         <img id="cardImg" src="" alt="Memory photo">
         <div class="cap" id="cardCap"></div>
+        <div class="token-result" id="tokenResult"></div>
       </div>
       <button class="keep" id="keepBtn">しまう · Keep it</button>
     </div>
@@ -1205,17 +1246,77 @@
 })();
 </script>
 
+<script>
+/* ================= GATCHA TOKENS (shared) ================= */
+(function(){
+  const TKEY = "gachaTokens";
+  const START_TOKENS = 3;
+  let tokens = START_TOKENS;
+  try{
+    const v = localStorage.getItem(TKEY);
+    if (v !== null) tokens = Math.max(0, parseInt(v) || 0);
+  }catch(e){}
+  function save(){ try{ localStorage.setItem(TKEY, tokens); }catch(e){} }
+  function render(){
+    const el = document.getElementById("tokenCount");
+    if (el) el.textContent = tokens;
+    const box = document.getElementById("tokenBox");
+    if (box){ box.classList.remove("bump"); void box.offsetWidth; box.classList.add("bump"); }
+    document.dispatchEvent(new CustomEvent("tokens:change", { detail: tokens }));
+  }
+  window.gachaTokens = {
+    get: ()=> tokens,
+    add: (n)=>{ tokens = Math.max(0, tokens + n); save(); render(); return tokens; },  /* never negative */
+    render
+  };
+  document.addEventListener("DOMContentLoaded", render);
+})();
+</script>
 <script src="photos.js"></script>
 <script>
 (function(){
-  const total = PHOTOS.length;
+  /* only 28 photos exist — use the first 28 entries of PHOTOS (from photos.js) */
+  const MAX_PHOTOS = 28;
+  const total = Math.min(PHOTOS.length, MAX_PHOTOS);
   const KEY = "memoryGachaIndex";
   let idx = 0, busy = false;
+
+  /* ---- daily limit: only 2 capsules per day ---- */
+  const PULLS_PER_DAY = 2;
+  const PKEY = "gachaPullsToday";
+  const todayStr = ()=>{ const d = new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); };
+  let pulls = { date: todayStr(), n: 0 };
+  try{
+    const s = JSON.parse(localStorage.getItem(PKEY));
+    if (s && s.date === todayStr()) pulls = { date: s.date, n: +s.n || 0 };
+  }catch(e){}
+  function pullsLeft(){
+    if (pulls.date !== todayStr()){ pulls = { date: todayStr(), n: 0 }; savePulls(); }
+    return Math.max(0, PULLS_PER_DAY - pulls.n);
+  }
+  function savePulls(){ try{ localStorage.setItem(PKEY, JSON.stringify(pulls)); }catch(e){} }
+  function usePull(){ pullsLeft(); pulls.n++; savePulls(); }
+  const LIMIT_MSG = "きょうはここまで · 2 capsules a day — come back tomorrow 🌙";
+  const NO_TOKEN_MSG = "🪙 No tokens! Win a game or trade a prize below for tokens";
+
+  /* ---- capsule token result: -1 / 0 / +2 ---- */
+  const TOKEN_ODDS = [ [-1, 0.45], [0, 0.35], [2, 0.20] ];
+  function rollTokens(){
+    let r = Math.random();
+    for (const [v, p] of TOKEN_ODDS){ if (r < p) return v; r -= p; }
+    return 0;
+  }
+  let pendingTokens = 0;
+  function tokenLabel(v){
+    return v > 0 ? "🪙 +" + v + " tokens! Lucky capsule ✨"
+         : v < 0 ? "🪙 " + v + " token · the sea keeps it 🌊"
+         : "🪙 ±0 · token stays put";
+  }
   try { idx = Math.min(parseInt(localStorage.getItem(KEY)) || 0, total); } catch(e){}
 
   const $ = id => document.getElementById(id);
 
-  /* ---- lucky capsule schedule: 8 gold + 2 ultra hidden among the 30 ---- */
+  /* ---- lucky capsule schedule: 8 gold + 2 ultra hidden among the 28 ---- */
   const LKEY = "gachaLuck";
   let luck = [];
   function genLuck(){
@@ -1256,7 +1357,17 @@
     $("turnBtn").style.display = done ? "none" : "block";
     $("hint").style.display = done ? "none" : "block";
     $("complete").classList.toggle("show", done);
+    if (!done && !busy){
+      const left = pullsLeft();
+      const broke = window.gachaTokens.get() < 1;
+      $("turnBtn").disabled = left === 0 || broke;
+      if (left === 0) $("hint").textContent = LIMIT_MSG;
+      else if (broke) $("hint").textContent = NO_TOKEN_MSG;
+      else if ([LIMIT_MSG, NO_TOKEN_MSG].includes($("hint").textContent))
+        $("hint").textContent = "コインをいれて · Ready when you are";
+    }
   }
+  document.addEventListener("tokens:change", ()=>{ if (!busy) sync(); });
   function save(){ try{ localStorage.setItem(KEY, idx); }catch(e){} }
 
   // ambient bubbles
@@ -1273,7 +1384,11 @@
 
   $("turnBtn").addEventListener("click", ()=>{
     if (busy || idx >= total) return;
+    if (pullsLeft() === 0){ $("turnBtn").disabled = true; $("hint").textContent = LIMIT_MSG; return; }
+    if (window.gachaTokens.get() < 1){ $("turnBtn").disabled = true; $("hint").textContent = NO_TOKEN_MSG; return; }
     busy = true;
+    usePull();
+    pendingTokens = rollTokens();
     $("turnBtn").disabled = true;
     $("hint").textContent = "コロコロ…";
 
@@ -1316,6 +1431,9 @@
     ov.classList.toggle("ultra", pendingTier === 2);
     $("rareTag").textContent = pendingTier === 2 ? "🌈 ULTRA RARE!! 🌈"
                              : pendingTier === 1 ? "✨ GOLD CAPSULE! ✨" : "";
+    const tr = $("tokenResult");
+    tr.textContent = tokenLabel(pendingTokens);
+    tr.className = "token-result " + (pendingTokens > 0 ? "plus" : pendingTokens < 0 ? "minus" : "zero");
     ov.classList.add("show","opening");
     ov.classList.remove("opened");
     setTimeout(()=>{
@@ -1327,18 +1445,21 @@
   $("keepBtn").addEventListener("click", ()=>{
     $("overlay").classList.remove("show","opened","opening","rare","ultra");
     const tier = pendingTier; pendingTier = 0;
+    window.gachaTokens.add(pendingTokens); pendingTokens = 0;   /* apply capsule result (never below 0) */
     idx++;
     save(); sync();
     busy = false;
-    $("turnBtn").disabled = false;
-    $("hint").textContent = idx >= total ? "" :
+    const left = pullsLeft();
+    $("turnBtn").disabled = left === 0;
+    $("hint").textContent = idx >= total ? "" : left === 0 ? LIMIT_MSG :
       ["つぎはなにかな？ · What's next?","もういっかい？ · One more?","波がよんでいる · The tide is calling"][idx % 3];
     if (tier && window.capsulePrize) setTimeout(()=> window.capsulePrize(tier), 350);
   });
 
   $("restart").addEventListener("click", ()=>{
-    idx = 0; save(); genLuck(); sync();
+    idx = 0; save(); genLuck();
     $("hint").textContent = "コインをいれて · Ready when you are";
+    sync();
   });
 
   sync();
@@ -1516,6 +1637,7 @@
     walletList.innerHTML = "";
     const { active, spent } = walletCounts();
     $("walletHint").style.display = active.size ? "block" : "none";
+    $("tradeBtn").style.display = active.size ? "block" : "none";
     if (!won.length){
       walletList.innerHTML = '<li class="empty">No prizes yet… go win some!</li>';
       return;
@@ -1621,6 +1743,45 @@
   });
   $("redeemDone").addEventListener("click", markUsed);
   $("redeemCancel").addEventListener("click", closeRedeem);
+
+  /* ---- trade a prize → 2 gatcha tokens ---- */
+  const TOKENS_PER_PRIZE = 2;
+  const tradeOv = $("tradeOverlay");
+  const tradeList = $("tradeList");
+  function tradePrize(p){
+    const i = won.indexOf(p);
+    if (i > -1){ won.splice(i, 1); saveWon(); }
+    renderWallet();
+    tradeOv.classList.remove("show");
+    window.gachaTokens.add(TOKENS_PER_PRIZE);
+    toneSound(880, 1320, .12, .18, "sine");
+    if (!reduce){
+      for (let k = 0; k < 10; k++){
+        const b = document.createElement("div");
+        b.className = "burst"; b.textContent = "🪙";
+        b.style.left = (innerWidth/2) + "px"; b.style.top = (innerHeight/2) + "px";
+        b.style.setProperty("--bx", (Math.random()*440 - 220) + "px");
+        b.style.setProperty("--by", (Math.random()*440 - 220) + "px");
+        document.body.appendChild(b); setTimeout(()=> b.remove(), 1300);
+      }
+    }
+  }
+  $("tradeBtn").addEventListener("click", ()=>{
+    const { active } = walletCounts();
+    if (!active.size) return;
+    tradeList.innerHTML = "";
+    active.forEach((n, p)=>{
+      const li = document.createElement("li");
+      li.textContent = p;
+      if (n > 1){ const q = document.createElement("span"); q.className = "qty"; q.textContent = "×" + n; li.appendChild(q); }
+      li.setAttribute("role","button"); li.setAttribute("tabindex","0");
+      li.addEventListener("click", ()=> tradePrize(p));
+      li.addEventListener("keydown", e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); tradePrize(p); } });
+      tradeList.appendChild(li);
+    });
+    tradeOv.classList.add("show");
+  });
+  $("tradeCancel").addEventListener("click", ()=> tradeOv.classList.remove("show"));
 
   /* ---- lose a game → the sea takes a prize (one risk per game per day) ---- */
   const forfeitOv = $("forfeitOverlay");
